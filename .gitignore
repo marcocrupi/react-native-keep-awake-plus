@@ -1,4 +1,5 @@
 .watchmanconfig
+!example/.watchmanconfig
 
 # Android
 *.iml
@@ -6,10 +7,25 @@
 local.properties
 .idea/
 gradle/
+!example/android/gradle/
+!example/android/gradle/wrapper/
+!example/android/gradle/wrapper/gradle-wrapper.jar
+!example/android/gradle/wrapper/gradle-wrapper.properties
+!example/android/gradlew
+!example/android/gradlew.bat
 .DS_Store
+*.log
+*.tgz
 build/
 captures/
+example/node_modules/
+example/android/.gradle/
+example/android/build/
+example/android/app/build/
 
 # iOS
 xcuserdata/
 *.xcworkspace/
+example/ios/Pods/
+example/ios/build/
+example/ios/DerivedData/
