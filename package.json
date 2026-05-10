@@ -1,15 +1,11 @@
 {
-  "name": "@sayem314/react-native-keep-awake",
+  "name": "@marcocrupi/react-native-keep-awake-plus",
   "version": "1.4.0",
-  "description": "Keep the screen from going to sleep. iOS, Android and Web.",
+  "description": "Maintained fork of @sayem314/react-native-keep-awake. Keep the screen from going to sleep in React Native apps.",
   "main": "index",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/marcocrupi/react-native-keep-awake-plus.git"
-  },
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/sayem314"
   },
   "bugs": {
     "url": "https://github.com/marcocrupi/react-native-keep-awake-plus/issues"
@@ -24,7 +20,11 @@
     "lock",
     "sleep"
   ],
-  "author": "Sayem Chowdhury",
+  "author": "Marco Crupi",
+  "contributors": [
+    "Kyle Corbitt",
+    "Sayem Chowdhury"
+  ],
   "license": "MIT",
   "codegenConfig": {
     "name": "ReactNativeKCKeepAwakeSpec",

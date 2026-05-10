@@ -1,23 +1,47 @@
-This React Native package allows you to prevent the screen from going to sleep while your app is active. It's useful for things like navigation or video playback, where the user expects the app to remain visible over long periods without touch interaction.
+# React Native Keep Awake Plus
+
+This React Native package allows you to prevent the screen from going to sleep
+while your app is active. It's useful for things like navigation or video
+playback, where the user expects the app to remain visible over long periods
+without touch interaction.
+
+## About this fork
+
+`@marcocrupi/react-native-keep-awake-plus` is an independently maintained
+fork of `@sayem314/react-native-keep-awake`.
+
+The original project was created by Kyle Corbitt and later maintained by Sayem
+Chowdhury.
+
+This fork is maintained by Marco Crupi.
+
+The goal of this fork is to keep the package usable and maintained for modern
+React Native projects while preserving the original public API where possible.
+
+The original MIT license and copyright notices are preserved.
+
+The original maintainers have not stated any affiliation with this fork.
 
 ## Installation
 
 As the first step, install this module:
 
-#### React Native 0.60+
+### React Native 0.60+
 
-`yarn add @sayem314/react-native-keep-awake`
+`yarn add @marcocrupi/react-native-keep-awake-plus`
 
-#### React Native new architecture
+### React Native new architecture
 
-You must use `react-native-keep-awake@1.2.0` or newer if you want to use the [RN new architecture](https://reactnative.dev/docs/the-new-architecture/landing-page).
+Validate New Architecture support against the version of
+`@marcocrupi/react-native-keep-awake-plus` you install and your target React
+Native version.
 
 ## Usage
 
-#### example: hooks
+### Example: hooks
 
 ```js
-import { useKeepAwake } from '@sayem314/react-native-keep-awake';
+import { useKeepAwake } from '@marcocrupi/react-native-keep-awake-plus';
 import React from 'react';
 import { Text, View } from 'react-native';
 
@@ -32,10 +56,10 @@ export default function KeepAwakeExample {
 }
 ```
 
-#### example: components
+### Example: components
 
 ```js
-import KeepAwake from '@sayem314/react-native-keep-awake';
+import KeepAwake from '@marcocrupi/react-native-keep-awake-plus';
 import React from 'react';
 import { Text, View } from 'react-native';
 
@@ -49,10 +73,10 @@ export default function KeepAwakeExample {
 }
 ```
 
-#### example: functions
+### Example: functions
 
 ```js
-import { activateKeepAwake, deactivateKeepAwake} from "@sayem314/react-native-keep-awake";
+import { activateKeepAwake, deactivateKeepAwake} from "@marcocrupi/react-native-keep-awake-plus";
 import React from "react";
 import { Button, View } from "react-native";
 
