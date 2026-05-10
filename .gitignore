@@ -18,6 +18,7 @@ gradle/
 *.tgz
 build/
 captures/
+/node_modules/
 example/node_modules/
 example/android/.gradle/
 example/android/build/

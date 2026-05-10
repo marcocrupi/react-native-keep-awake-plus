@@ -48,6 +48,10 @@ All notable changes to this project will be documented in this file.
 
 ### Tests
 
+- Added a root TypeScript typecheck setup for the public TypeScript/codegen
+  surface.
+- Fixed example TypeScript test module scoping so the example project can run
+  `tsc --noEmit`.
 - Verified locally Android Codegen, Android build, and Android runtime behavior
   with the included React Native 0.84.1 example.
 - Verified locally iOS pod install and iOS build with the included React Native

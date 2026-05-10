@@ -1,3 +1,5 @@
+export {};
+
 const KEEP_AWAKE_MODULE =
   '@marcocrupi/react-native-keep-awake-plus/index.native';
 const NATIVE_KEEP_AWAKE_MODULE =
