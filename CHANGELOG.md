@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file.
 - Updated `<KeepAwake />` and `useKeepAwake()` to use JS owner counting.
 - Removed the deprecated Android manifest `package` attribute and rely on the
   Gradle namespace for modern Android builds.
+- Replaced the legacy Android `com.facebook.react:react-native:+` dependency
+  with `compileOnly("com.facebook.react:react-android")` for modern React
+  Native Android builds.
 
 ### Fixed
 
