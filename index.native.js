@@ -10,18 +10,48 @@ export const deactivateKeepAwake = () => {
   ReactNativeKCKeepAwake.deactivate();
 };
 
+let keepAwakeOwnerCount = 0;
+
+const acquireKeepAwake = () => {
+  if (keepAwakeOwnerCount === 0) {
+    activateKeepAwake();
+  }
+
+  keepAwakeOwnerCount += 1;
+};
+
+const releaseKeepAwake = () => {
+  if (keepAwakeOwnerCount <= 0) {
+    keepAwakeOwnerCount = 0;
+    return;
+  }
+
+  keepAwakeOwnerCount -= 1;
+
+  if (keepAwakeOwnerCount === 0) {
+    deactivateKeepAwake();
+  }
+};
+
 export const useKeepAwake = () => {
   useEffect(() => {
-    activateKeepAwake();
-    return deactivateKeepAwake;
+    let released = false;
+
+    acquireKeepAwake();
+
+    return () => {
+      if (released) {
+        return;
+      }
+
+      released = true;
+      releaseKeepAwake();
+    };
   }, []);
 };
 
 export default () => {
-  useEffect(() => {
-    activateKeepAwake();
-    return deactivateKeepAwake;
-  }, []);
+  useKeepAwake();
 
   return null;
 };
