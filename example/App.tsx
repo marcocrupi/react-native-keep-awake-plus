@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -16,8 +16,10 @@ import KeepAwake, {
 } from '@marcocrupi/react-native-keep-awake-plus';
 
 function App() {
-  const [componentMounted, setComponentMounted] = useState(false);
-  const [hookMounted, setHookMounted] = useState(false);
+  const [componentOwnerAMounted, setComponentOwnerAMounted] = useState(false);
+  const [componentOwnerBMounted, setComponentOwnerBMounted] = useState(false);
+  const [hookOwnerAMounted, setHookOwnerAMounted] = useState(false);
+  const [hookOwnerBMounted, setHookOwnerBMounted] = useState(false);
   const [lastAction, setLastAction] = useState('app mounted');
   const [lastError, setLastError] = useState('none');
 
@@ -43,31 +45,47 @@ function App() {
     setLastError(message);
   };
 
-  const toggleComponent = (enabled: boolean) => {
-    recordAction(enabled ? 'component mounted' : 'component unmounted');
-    setComponentMounted(enabled);
+  const toggleComponentOwnerA = (enabled: boolean) => {
+    recordAction(
+      `toggle Component owner A ${enabled ? 'mounted' : 'unmounted'}`,
+    );
+    setComponentOwnerAMounted(enabled);
   };
 
-  const toggleHook = (enabled: boolean) => {
-    recordAction(enabled ? 'hook mounted' : 'hook unmounted');
-    setHookMounted(enabled);
+  const toggleComponentOwnerB = (enabled: boolean) => {
+    recordAction(
+      `toggle Component owner B ${enabled ? 'mounted' : 'unmounted'}`,
+    );
+    setComponentOwnerBMounted(enabled);
+  };
+
+  const toggleHookOwnerA = (enabled: boolean) => {
+    recordAction(`toggle Hook owner A ${enabled ? 'mounted' : 'unmounted'}`);
+    setHookOwnerAMounted(enabled);
+  };
+
+  const toggleHookOwnerB = (enabled: boolean) => {
+    recordAction(`toggle Hook owner B ${enabled ? 'mounted' : 'unmounted'}`);
+    setHookOwnerBMounted(enabled);
   };
 
   const activate = () => {
     try {
+      console.log('[KeepAwakeSmoke] Activate imperative pressed');
       activateKeepAwake();
-      recordAction('activateKeepAwake()');
+      recordAction('Activate imperative');
     } catch (error) {
-      recordError('activateKeepAwake()', error);
+      recordError('Activate imperative', error);
     }
   };
 
   const deactivate = () => {
     try {
+      console.log('[KeepAwakeSmoke] Deactivate imperative pressed');
       deactivateKeepAwake();
-      recordAction('deactivateKeepAwake()');
+      recordAction('Deactivate imperative');
     } catch (error) {
-      recordError('deactivateKeepAwake()', error);
+      recordError('Deactivate imperative', error);
     }
   };
 
@@ -81,24 +99,59 @@ function App() {
         </Text>
 
         <SmokeToggle
-          label="Render <KeepAwake />"
-          value={componentMounted}
-          onValueChange={toggleComponent}
+          label="Component owner A"
+          value={componentOwnerAMounted}
+          onValueChange={toggleComponentOwnerA}
         />
-        {componentMounted ? <KeepAwakeComponentSmoke /> : null}
+        {componentOwnerAMounted ? (
+          <KeepAwakeComponentSmoke ownerName="Component owner A" />
+        ) : null}
 
         <SmokeToggle
-          label="Render useKeepAwake() hook owner"
-          value={hookMounted}
-          onValueChange={toggleHook}
+          label="Component owner B"
+          value={componentOwnerBMounted}
+          onValueChange={toggleComponentOwnerB}
         />
-        {hookMounted ? <KeepAwakeHookSmoke /> : null}
+        {componentOwnerBMounted ? (
+          <KeepAwakeComponentSmoke ownerName="Component owner B" />
+        ) : null}
+
+        <SmokeToggle
+          label="Hook owner A"
+          value={hookOwnerAMounted}
+          onValueChange={toggleHookOwnerA}
+        />
+        {hookOwnerAMounted ? (
+          <KeepAwakeHookSmoke ownerName="Hook owner A" />
+        ) : null}
+
+        <SmokeToggle
+          label="Hook owner B"
+          value={hookOwnerBMounted}
+          onValueChange={toggleHookOwnerB}
+        />
+        {hookOwnerBMounted ? (
+          <KeepAwakeHookSmoke ownerName="Hook owner B" />
+        ) : null}
 
         <View style={styles.actions}>
-          <ActionButton label="Activate" onPress={activate} />
-          <ActionButton label="Deactivate" onPress={deactivate} />
+          <ActionButton label="Activate imperative" onPress={activate} />
+          <ActionButton label="Deactivate imperative" onPress={deactivate} />
         </View>
 
+        <View style={styles.statusBlock}>
+          <Text style={styles.statusLabel}>owner state</Text>
+          <StatusLine
+            label="Component owner A"
+            mounted={componentOwnerAMounted}
+          />
+          <StatusLine
+            label="Component owner B"
+            mounted={componentOwnerBMounted}
+          />
+          <StatusLine label="Hook owner A" mounted={hookOwnerAMounted} />
+          <StatusLine label="Hook owner B" mounted={hookOwnerBMounted} />
+        </View>
         <View style={styles.statusBlock}>
           <Text style={styles.statusLabel}>lastAction</Text>
           <Text style={styles.statusValue}>{lastAction}</Text>
@@ -112,30 +165,30 @@ function App() {
   );
 }
 
-function KeepAwakeComponentSmoke() {
+function KeepAwakeComponentSmoke({ ownerName }: { ownerName: string }) {
   useEffect(() => {
-    console.log('[KeepAwakeSmoke] <KeepAwake /> mounted');
+    console.log(`[KeepAwakeSmoke] ${ownerName} mounted`);
 
     return () => {
-      console.log('[KeepAwakeSmoke] <KeepAwake /> unmounted');
+      console.log(`[KeepAwakeSmoke] ${ownerName} unmounted`);
     };
-  }, []);
+  }, [ownerName]);
 
   return <KeepAwake />;
 }
 
-function KeepAwakeHookSmoke() {
+function KeepAwakeHookSmoke({ ownerName }: { ownerName: string }) {
   useKeepAwake();
 
   useEffect(() => {
-    console.log('[KeepAwakeSmoke] useKeepAwake() owner mounted');
+    console.log(`[KeepAwakeSmoke] ${ownerName} mounted`);
 
     return () => {
-      console.log('[KeepAwakeSmoke] useKeepAwake() owner unmounted');
+      console.log(`[KeepAwakeSmoke] ${ownerName} unmounted`);
     };
-  }, []);
+  }, [ownerName]);
 
-  return <Text style={styles.hookStatus}>useKeepAwake() owner mounted</Text>;
+  return <Text style={styles.hookStatus}>{ownerName} hook mounted</Text>;
 }
 
 function SmokeToggle({
@@ -155,6 +208,17 @@ function SmokeToggle({
   );
 }
 
+function StatusLine({ label, mounted }: { label: string; mounted: boolean }) {
+  return (
+    <View style={styles.statusLine}>
+      <Text style={styles.statusName}>{label}</Text>
+      <Text style={styles.statusValue}>
+        {mounted ? 'mounted' : 'unmounted'}
+      </Text>
+    </View>
+  );
+}
+
 function ActionButton({
   label,
   onPress,
@@ -166,10 +230,11 @@ function ActionButton({
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({pressed}) => [
+      style={({ pressed }) => [
         styles.button,
         pressed ? styles.buttonPressed : null,
-      ]}>
+      ]}
+    >
       <Text style={styles.buttonText}>{label}</Text>
     </Pressable>
   );
@@ -243,11 +308,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 14,
   },
+  statusLine: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
   statusLabel: {
     color: '#666666',
     fontSize: 12,
     fontWeight: '700',
     textTransform: 'uppercase',
+  },
+  statusName: {
+    color: '#333333',
+    flex: 1,
+    fontSize: 14,
   },
   statusValue: {
     color: '#111111',
