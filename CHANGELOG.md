@@ -25,6 +25,9 @@ All notable changes to this project will be documented in this file.
 - Replaced the legacy Android `com.facebook.react:react-native:+` dependency
   with `compileOnly("com.facebook.react:react-android")` for modern React
   Native Android builds.
+- Declared peer dependencies for React and React Native, with React Native 0.73
+  as the minimum supported version and React Native 0.84 as the current
+  development target.
 
 ### Fixed
 
@@ -49,6 +52,10 @@ All notable changes to this project will be documented in this file.
   with the included React Native 0.84.1 example.
 - Verified locally iOS pod install and iOS build with the included React Native
   0.84.1 example.
+- Verified React Native 0.73.11 compatibility from a local npm tarball,
+  including Android old architecture build/runtime, Android New Architecture
+  Codegen/build, iOS pod install/build, lint, root API smoke, and legacy
+  `Class` deep import smoke.
 - Added Jest tests for owner-counting behavior and imperative pass-through.
 
 ### Documentation
@@ -63,5 +70,5 @@ All notable changes to this project will be documented in this file.
 - Imperative APIs intentionally keep direct last-call-wins behavior.
 - `Class.js` remains a legacy deep-import compatibility path and is not part of
   the documented main API.
-- `peerDependencies`, `exports`, Gradle cleanup, podspec cleanup, CI, and
-  release policy remain follow-up items.
+- `exports`, Gradle cleanup, podspec cleanup, CI, and release policy remain
+  follow-up items.

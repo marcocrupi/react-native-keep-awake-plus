@@ -139,10 +139,24 @@ npm run ios
 
 ## Compatibility
 
-The included smoke app currently targets React Native 0.84.1.
+Minimum supported React Native: 0.73.
 
-New Architecture behavior is validated through the included smoke app, but this
-repository does not yet publish a full compatibility matrix.
+Development target: React Native 0.84.
+
+The package has been validated with a React Native 0.73.11 temporary fixture
+installed from the local npm tarball. That validation covered Android old
+architecture build and runtime smoke, Android New Architecture Codegen/build,
+iOS pod install/build, lint, root API smoke, and the legacy `Class` deep import
+smoke.
+
+The included `example/` app targets React Native 0.84.1 and is used as the main
+development smoke app.
+
+React Native versions beyond 0.84.x are not claimed as supported until
+verified.
+
+The repository does not yet publish a full compatibility matrix for every patch
+release or intermediate React Native range.
 
 Non-native environments use a no-op fallback. This should not be presented as
 full browser keep-awake support.
