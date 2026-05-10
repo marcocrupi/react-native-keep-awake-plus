@@ -23,6 +23,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Fixed the legacy `Class.js` deep import so it uses the current native module
+  implementation.
 - Fixed multi-owner behavior for the component and hook so one owner unmounting
   does not disable keep-awake while another owner is still mounted.
 - Reduced Android context leak and stale-context risk by avoiding a static
@@ -54,7 +56,7 @@ All notable changes to this project will be documented in this file.
 - This is an independently maintained fork of
   `@sayem314/react-native-keep-awake`.
 - Imperative APIs intentionally keep direct last-call-wins behavior.
-- `Class.js` remains a legacy/deep-import compatibility concern and is not part
-  of the documented API.
+- `Class.js` remains a legacy deep-import compatibility path and is not part of
+  the documented main API.
 - `peerDependencies`, `exports`, Gradle cleanup, podspec cleanup, CI, and
   release policy remain follow-up items.
