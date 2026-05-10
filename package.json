@@ -3,6 +3,22 @@
   "version": "1.4.0",
   "description": "Maintained fork of @sayem314/react-native-keep-awake. Keep the screen from going to sleep in React Native apps.",
   "main": "index",
+  "types": "index.d.ts",
+  "files": [
+    "Class.js",
+    "NativeKCKeepAwake.ts",
+    "index.d.ts",
+    "index.js",
+    "index.native.js",
+    "react-native-keep-awake.podspec",
+    "ios/ReactNativeKCKeepAwake.h",
+    "ios/ReactNativeKCKeepAwake.mm",
+    "android/build.gradle",
+    "android/gradle.properties",
+    "android/src/**",
+    "README.md",
+    "LICENCE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/marcocrupi/react-native-keep-awake-plus.git"
