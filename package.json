@@ -17,6 +17,7 @@
     "android/gradle.properties",
     "android/src/**",
     "README.md",
+    "CHANGELOG.md",
     "LICENCE"
   ],
   "repository": {
