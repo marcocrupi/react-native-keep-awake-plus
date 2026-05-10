@@ -8,14 +8,14 @@ class KCKeepAwakeImpl {
 
     public static final String NAME = "ReactNativeKCKeepAwake";
 
-    static ReactApplicationContext RCTContext;
+    private final ReactApplicationContext reactContext;
 
     public KCKeepAwakeImpl(ReactApplicationContext reactContext) {
-        RCTContext = reactContext;
+        this.reactContext = reactContext;
     }
 
     public void activate() {
-        final Activity activity = RCTContext.getCurrentActivity();
+        final Activity activity = reactContext.getCurrentActivity();
 
         if (activity != null) {
             activity.runOnUiThread(new Runnable() {
@@ -28,7 +28,7 @@ class KCKeepAwakeImpl {
     }
 
     public void deactivate() {
-        final Activity activity = RCTContext.getCurrentActivity();
+        final Activity activity = reactContext.getCurrentActivity();
 
         if (activity != null) {
             activity.runOnUiThread(new Runnable() {
