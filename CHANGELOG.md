@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file.
 - Refactored Android implementation to avoid storing `ReactApplicationContext`
   in a static field.
 - Updated `<KeepAwake />` and `useKeepAwake()` to use JS owner counting.
+- Removed the deprecated Android manifest `package` attribute and rely on the
+  Gradle namespace for modern Android builds.
 
 ### Fixed
 
