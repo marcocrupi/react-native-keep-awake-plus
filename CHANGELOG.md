@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.5.0 - 2026-05-11
+
 ### Added
 
 - Added a React Native 0.84.1 smoke app under `example/`.
