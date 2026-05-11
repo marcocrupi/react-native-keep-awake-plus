@@ -74,5 +74,8 @@ All notable changes to this project will be documented in this file.
 - Imperative APIs intentionally keep direct last-call-wins behavior.
 - `Class.js` remains a legacy deep-import compatibility path and is not part of
   the documented main API.
-- `exports`, Gradle cleanup, podspec cleanup, CI, and release policy remain
+- `exports`, Gradle cleanup, podspec cleanup, and release policy remain
   follow-up items.
+- A minimal package/typecheck/tarball/example CI workflow exists; Android
+  native CI, iOS native CI, a permanent old/new architecture matrix, release
+  automation, and npm publish automation remain follow-up items.

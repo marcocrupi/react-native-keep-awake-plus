@@ -143,6 +143,10 @@ Minimum supported React Native: 0.73.
 
 Development target: React Native 0.84.
 
+Tested with React Native 0.84.1 using the New Architecture through the included
+smoke app. Legacy bridge files are kept for compatibility with the supported
+React Native range.
+
 The package has been validated with a React Native 0.73.11 temporary fixture
 installed from the local npm tarball. That validation covered Android old
 architecture build and runtime smoke, Android New Architecture Codegen/build,
