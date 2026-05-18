@@ -143,9 +143,9 @@ Minimum supported React Native: 0.73.
 
 Development target: React Native 0.85.3.
 
-Build-validated with React Native 0.85.3 using the New Architecture through
-the included smoke app. Legacy bridge files are kept for compatibility with the
-supported React Native range.
+Tested with React Native 0.85.3 using the New Architecture through the
+included smoke app on Android and iOS. Legacy bridge files are kept for
+compatibility with the supported React Native range.
 
 React Native 0.85.3 old architecture is not claimed as validated. React Native
 0.85.x no longer supports disabling the New Architecture in the same way as
