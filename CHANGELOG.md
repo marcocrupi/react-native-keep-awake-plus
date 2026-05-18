@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### React Native 0.85.3 Compatibility
+
+- Added installable React Native 0.85.x support by widening the React Native
+  peer range to `>=0.73.0 <0.86.0`.
+- Updated the included smoke app to React Native 0.85.3 and matching
+  `@react-native/*` packages.
+- Kept the public API unchanged and retained the legacy bridge files for the
+  supported React Native range.
+
+### React Native 0.85.3 Validation
+
+- Build-validated the React Native 0.85.3 smoke app with Android New
+  Architecture `assembleDebug`, iOS `pod install`, and iOS simulator build.
+- Kept Jest coverage for owner counting, imperative pass-through calls, and
+  legacy `Class` deep imports passing on the updated smoke app.
+
 ## 1.5.0 - 2026-05-11
 
 ### Added

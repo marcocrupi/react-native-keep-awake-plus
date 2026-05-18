@@ -8,8 +8,8 @@ work by Kyle Corbitt and Sayem Chowdhury.
 
 ## Project status
 
-This fork is being modernized and tested with the included React Native 0.84.1
-smoke app.
+This fork is being modernized and build-validated with the included React
+Native 0.85.3 smoke app.
 
 The repository does not yet publish a full compatibility matrix. No registry
 or repository release state is claimed here.
@@ -116,15 +116,15 @@ native module and intentionally keep last-call-wins behavior.
 The imperative functions do not participate in the owner counting used by the
 component and hook.
 
-## React Native 0.84.1 smoke app
+## React Native 0.85.3 smoke app
 
 The repository includes a smoke app in `example/` targeting React Native
-0.84.1. It uses npm, depends on this package through
+0.85.3. It uses npm, depends on this package through
 `@marcocrupi/react-native-keep-awake-plus: "file:.."`, and enables
 `install-links=true` in `example/.npmrc`.
 
 The `install-links=true` setting avoids installing the local `file:..`
-dependency as a symlink. This matters because React Native 0.84 Codegen may not
+dependency as a symlink. This matters because React Native Codegen may not
 process the package root correctly when the local dependency is symlinked.
 
 Common example commands:
@@ -141,11 +141,15 @@ npm run ios
 
 Minimum supported React Native: 0.73.
 
-Development target: React Native 0.84.
+Development target: React Native 0.85.3.
 
-Tested with React Native 0.84.1 using the New Architecture through the included
-smoke app. Legacy bridge files are kept for compatibility with the supported
-React Native range.
+Build-validated with React Native 0.85.3 using the New Architecture through
+the included smoke app. Legacy bridge files are kept for compatibility with the
+supported React Native range.
+
+React Native 0.85.3 old architecture is not claimed as validated. React Native
+0.85.x no longer supports disabling the New Architecture in the same way as
+older React Native versions.
 
 The package has been validated with a React Native 0.73.11 temporary fixture
 installed from the local npm tarball. That validation covered Android old
@@ -153,10 +157,10 @@ architecture build and runtime smoke, Android New Architecture Codegen/build,
 iOS pod install/build, lint, root API smoke, and the legacy `Class` deep import
 smoke.
 
-The included `example/` app targets React Native 0.84.1 and is used as the main
+The included `example/` app targets React Native 0.85.3 and is used as the main
 development smoke app.
 
-React Native versions beyond 0.84.x are not claimed as supported until
+React Native versions beyond 0.85.x are not claimed as supported until
 verified.
 
 The repository does not yet publish a full compatibility matrix for every patch

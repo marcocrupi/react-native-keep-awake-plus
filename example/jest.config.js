@@ -1,5 +1,5 @@
 module.exports = {
-  preset: 'react-native',
+  preset: '@react-native/jest-preset',
   moduleNameMapper: {
     '^@marcocrupi/react-native-keep-awake-plus$':
       '<rootDir>/node_modules/@marcocrupi/react-native-keep-awake-plus/index.js',

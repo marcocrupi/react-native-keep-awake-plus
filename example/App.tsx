@@ -95,7 +95,7 @@ function App() {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Keep Awake Smoke</Text>
         <Text style={styles.caption}>
-          React Native 0.84 app using the local package.
+          React Native 0.85.3 app using the local package.
         </Text>
 
         <SmokeToggle
