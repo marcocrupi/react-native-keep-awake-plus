@@ -1,10 +1,13 @@
-import ReactNativeKCKeepAwake from "./NativeKCKeepAwake";
+import {
+  activateKeepAwakeNative,
+  deactivateKeepAwakeNative,
+} from "./NativeKCKeepAwakeModule";
 
 let keepAwakeOwnerCount = 0;
 
 export const acquireKeepAwakeOwner = () => {
   if (keepAwakeOwnerCount === 0) {
-    ReactNativeKCKeepAwake.activate();
+    activateKeepAwakeNative();
   }
 
   keepAwakeOwnerCount += 1;
@@ -19,6 +22,6 @@ export const releaseKeepAwakeOwner = () => {
   keepAwakeOwnerCount -= 1;
 
   if (keepAwakeOwnerCount === 0) {
-    ReactNativeKCKeepAwake.deactivate();
+    deactivateKeepAwakeNative();
   }
 };

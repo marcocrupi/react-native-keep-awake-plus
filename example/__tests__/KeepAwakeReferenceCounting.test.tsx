@@ -1,9 +1,8 @@
 export {};
 
-const KEEP_AWAKE_MODULE =
-  '@marcocrupi/react-native-keep-awake-plus/index.native';
-const NATIVE_KEEP_AWAKE_MODULE =
-  '@marcocrupi/react-native-keep-awake-plus/NativeKCKeepAwake';
+const KEEP_AWAKE_MODULE = '../../index.native';
+const NATIVE_KEEP_AWAKE_MODULE = '../../NativeKCKeepAwake';
+const ROOT_REACT_MODULE = require.resolve('../../node_modules/react');
 
 function loadKeepAwakeModule() {
   jest.resetModules();
@@ -19,6 +18,9 @@ function loadKeepAwakeModule() {
   }));
 
   const React = require('react');
+  jest.doMock('react', () => React);
+  jest.doMock(ROOT_REACT_MODULE, () => React);
+
   const ReactTestRenderer = require('react-test-renderer');
   const keepAwakeModule = require(KEEP_AWAKE_MODULE);
 

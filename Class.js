@@ -1,7 +1,10 @@
 import React from "react";
 
 import { acquireKeepAwakeOwner, releaseKeepAwakeOwner } from "./KeepAwakeOwners";
-import ReactNativeKCKeepAwake from "./NativeKCKeepAwake";
+import {
+  activateKeepAwakeNative,
+  deactivateKeepAwakeNative,
+} from "./NativeKCKeepAwakeModule";
 
 export default class KeepAwake extends React.Component {
   constructor(props) {
@@ -11,11 +14,11 @@ export default class KeepAwake extends React.Component {
   }
 
   static activate() {
-    ReactNativeKCKeepAwake.activate();
+    activateKeepAwakeNative();
   }
 
   static deactivate() {
-    ReactNativeKCKeepAwake.deactivate();
+    deactivateKeepAwakeNative();
   }
 
   componentDidMount() {

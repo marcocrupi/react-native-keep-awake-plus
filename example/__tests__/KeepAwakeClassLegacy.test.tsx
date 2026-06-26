@@ -1,13 +1,12 @@
 export {};
 
-const KEEP_AWAKE_MODULE =
-  '@marcocrupi/react-native-keep-awake-plus/index.native';
-const NATIVE_KEEP_AWAKE_MODULE =
-  '@marcocrupi/react-native-keep-awake-plus/NativeKCKeepAwake';
+const KEEP_AWAKE_MODULE = '../../index.native';
+const NATIVE_KEEP_AWAKE_MODULE = '../../NativeKCKeepAwake';
+const ROOT_REACT_MODULE = require.resolve('../../node_modules/react');
 
 const LEGACY_CLASS_IMPORTS = [
-  '@marcocrupi/react-native-keep-awake-plus/Class',
-  '@marcocrupi/react-native-keep-awake-plus/Class.js',
+  '../../Class',
+  '../../Class.js',
 ];
 
 function loadLegacyClassModule(moduleName: string) {
@@ -24,6 +23,9 @@ function loadLegacyClassModule(moduleName: string) {
   }));
 
   const React = require('react');
+  jest.doMock('react', () => React);
+  jest.doMock(ROOT_REACT_MODULE, () => React);
+
   const ReactTestRenderer = require('react-test-renderer');
   const rootKeepAwakeModule = require(KEEP_AWAKE_MODULE);
   const keepAwakeModule = require(moduleName);

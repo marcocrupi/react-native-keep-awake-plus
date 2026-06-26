@@ -1,14 +1,17 @@
 import React, { useEffect } from "react";
 
 import { acquireKeepAwakeOwner, releaseKeepAwakeOwner } from "./KeepAwakeOwners";
-import ReactNativeKCKeepAwake from "./NativeKCKeepAwake";
+import {
+  activateKeepAwakeNative,
+  deactivateKeepAwakeNative,
+} from "./NativeKCKeepAwakeModule";
 
 export const activateKeepAwake = () => {
-  ReactNativeKCKeepAwake.activate();
+  activateKeepAwakeNative();
 };
 
 export const deactivateKeepAwake = () => {
-  ReactNativeKCKeepAwake.deactivate();
+  deactivateKeepAwakeNative();
 };
 
 export const useKeepAwake = () => {

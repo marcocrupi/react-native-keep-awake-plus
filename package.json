@@ -23,6 +23,7 @@
     "Class.js",
     "Class.js.d.ts",
     "KeepAwakeOwners.js",
+    "NativeKCKeepAwakeModule.js",
     "NativeKCKeepAwake.ts",
     "index.d.ts",
     "index.js",
