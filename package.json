@@ -19,7 +19,10 @@
     "typescript": "^5.8.3"
   },
   "files": [
+    "Class.d.ts",
     "Class.js",
+    "Class.js.d.ts",
+    "KeepAwakeOwners.js",
     "NativeKCKeepAwake.ts",
     "index.d.ts",
     "index.js",
