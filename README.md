@@ -169,6 +169,21 @@ release or intermediate React Native range.
 Non-native environments use a no-op fallback. This should not be presented as
 full browser keep-awake support.
 
+### Native naming compatibility
+
+This package is intended to be used as a replacement for
+`@sayem314/react-native-keep-awake`, not alongside it in the same React Native
+app.
+
+Although the npm package name is
+`@marcocrupi/react-native-keep-awake-plus`, the native iOS and Android layers
+still keep legacy identifiers inherited from the original package, including
+the iOS pod name, native module name, Codegen name, and Android package.
+
+Installing both packages in the same app is not supported and may cause
+CocoaPods, native module, Codegen, or Android package collisions. Apps should
+depend on one keep-awake package only.
+
 ## Development notes
 
 Use `example/` for local development and smoke checks. After changing files in

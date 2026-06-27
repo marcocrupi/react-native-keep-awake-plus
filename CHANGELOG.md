@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Documentation updates
+
+- Documented that `@marcocrupi/react-native-keep-awake-plus` is intended to
+  replace `@sayem314/react-native-keep-awake`, not to be installed alongside
+  it, because the fork keeps legacy native identifiers that may collide at the
+  CocoaPods, native module, Codegen, or Android package level.
+
 ## 1.6.0 - 2026-05-18
 
 ### React Native 0.85.3 Compatibility
