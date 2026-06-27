@@ -1,10 +1,46 @@
 # Changelog
 
+<!-- markdownlint-configure-file { "MD024": { "siblings_only": true } } -->
+
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-### Documentation updates
+## 1.6.1 - 2026-06-27
+
+### Fixed
+
+- Fixed the legacy `/Class` deep import lifecycle so it shares the declarative
+  keep-awake owner counter with the root component and hook. This prevents one
+  legacy `Class` instance from disabling keep-awake while another declarative
+  owner is still mounted.
+- Made the native entrypoints import-safe when the `ReactNativeKCKeepAwake`
+  native module is not registered. The native module is now resolved lazily and
+  an explicit error is thrown when keep-awake functionality is used, instead of
+  crashing at import time.
+
+### Added
+
+- Added TypeScript declarations for the legacy `/Class` and `/Class.js` deep
+  imports.
+- Added `NativeKCKeepAwakeModule.js` as the shared lazy native module resolver
+  used by the native entrypoints.
+- Added missing-native test coverage for the root native entry, legacy `/Class`
+  deep imports, imperative APIs, static legacy APIs, and owner-counting recovery
+  after a failed native activation.
+
+### Security
+
+- Updated the example Ruby constraints to require `concurrent-ruby >= 1.3.7`
+  and `activesupport >= 7.2.3.1`, with the example Ruby baseline raised to
+  `>= 3.1.0`.
+- Updated the example React Native CLI packages to `20.1.3`, resolving the
+  vulnerable `fast-xml-parser` dependency path through `fast-xml-parser`
+  `5.9.3`.
+- Added an example-only `js-yaml` override to `4.2.0` to eliminate the remaining
+  vulnerable Jest/Istanbul tooling dependency path.
+
+### Documentation
 
 - Documented that `@marcocrupi/react-native-keep-awake-plus` is intended to
   replace `@sayem314/react-native-keep-awake`, not to be installed alongside
