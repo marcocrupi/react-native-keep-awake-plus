@@ -43,6 +43,15 @@ android {
             }
         }
     }
+
+    testOptions {
+        unitTests.includeAndroidResources = true
+        // Deadlock regressions use a watchdog; isolate their JVM from the other test classes.
+        unitTests.all {
+            forkEvery = 1
+            maxParallelForks = 1
+        }
+    }
 }
 
 repositories {
@@ -56,4 +65,9 @@ repositories {
 
 dependencies {
     compileOnly "com.facebook.react:react-android"
+    testImplementation "com.facebook.react:react-android"
+    testImplementation "junit:junit:4.13.2"
+    // SDK 34 tests also need to compile with the oldest supported Android toolchain's Jetifier.
+    testImplementation "org.robolectric:robolectric:4.11.1"
+    testImplementation "org.mockito:mockito-core:4.11.0"
 }

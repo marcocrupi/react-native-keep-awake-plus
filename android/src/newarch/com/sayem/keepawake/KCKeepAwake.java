@@ -1,14 +1,8 @@
 package com.sayem.keepawake;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.ReactApplicationContext;
-
-import com.sayem.keepawake.NativeKCKeepAwakeSpec;
-
-import android.util.Log;
 
 public class KCKeepAwake extends NativeKCKeepAwakeSpec {
 
@@ -23,6 +17,21 @@ public class KCKeepAwake extends NativeKCKeepAwakeSpec {
     @Override
     public String getName() {
         return KCKeepAwakeImpl.NAME;
+    }
+
+    @Override
+    public void initialize() {
+        super.initialize();
+        delegate.initialize();
+    }
+
+    @Override
+    public void invalidate() {
+        try {
+            delegate.invalidate();
+        } finally {
+            super.invalidate();
+        }
     }
     
     @Override
