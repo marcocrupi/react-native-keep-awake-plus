@@ -6,11 +6,17 @@
 #import "React/RCTBridgeModule.h"
 #endif
 
+#if __has_include(<React/RCTInvalidating.h>)
+#import <React/RCTInvalidating.h>
+#else
+#import "RCTInvalidating.h"
+#endif
+
 #if RCT_NEW_ARCH_ENABLED
 #import "ReactNativeKCKeepAwakeSpec.h"
 #endif
 
-@interface ReactNativeKCKeepAwake : NSObject <RCTBridgeModule>
+@interface ReactNativeKCKeepAwake : NSObject <RCTBridgeModule, RCTInvalidating>
 @end
 
 #if RCT_NEW_ARCH_ENABLED
