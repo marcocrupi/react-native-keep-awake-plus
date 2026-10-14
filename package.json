@@ -5,6 +5,7 @@
   "main": "index",
   "types": "index.d.ts",
   "scripts": {
+    "check:package": "node scripts/check-package.cjs",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

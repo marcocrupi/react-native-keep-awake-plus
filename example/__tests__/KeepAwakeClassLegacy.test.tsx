@@ -2,7 +2,9 @@ export {};
 
 const KEEP_AWAKE_MODULE = '../../index.native';
 const NATIVE_KEEP_AWAKE_MODULE = '../../NativeKCKeepAwake';
-const ROOT_REACT_MODULE = require.resolve('../../node_modules/react');
+const ROOT_REACT_MODULE = (
+  require as typeof require & {resolve(id: string): string}
+).resolve('../../node_modules/react');
 
 const LEGACY_CLASS_IMPORTS = [
   '../../Class',

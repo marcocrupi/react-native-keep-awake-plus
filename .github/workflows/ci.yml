@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 22.23.3
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -29,7 +29,7 @@ jobs:
         run: npm run typecheck
 
       - name: Validate npm package contents
-        run: npm pack --dry-run --json
+        run: npm run check:package
 
       - name: Install example dependencies
         run: npm ci
@@ -38,7 +38,16 @@ jobs:
       - name: Verify example install-links
         run: |
           test "$(npm config get install-links)" = "true"
+          test -f node_modules/@marcocrupi/react-native-keep-awake-plus/package.json
           test ! -L node_modules/@marcocrupi/react-native-keep-awake-plus
+        working-directory: example
+
+      - name: Typecheck example
+        run: npm run typecheck
+        working-directory: example
+
+      - name: Lint example
+        run: npm run lint
         working-directory: example
 
       - name: Test example

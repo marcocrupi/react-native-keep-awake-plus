@@ -86,7 +86,7 @@ describe('KeepAwake native module missing behavior', () => {
 
   test('does not retain an owner after the first native activate throws', () => {
     const nativeKeepAwake = {
-      activate: jest.fn(() => {
+      activate: jest.fn((): void => {
         throw new Error('Native activate failed');
       }),
       deactivate: jest.fn(),
