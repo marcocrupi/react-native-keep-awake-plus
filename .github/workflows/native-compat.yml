@@ -66,6 +66,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: android-actions/setup-android@v4
       - name: Record runner and provision exact SDKs
         run: |
           uname -a
@@ -73,6 +74,8 @@ jobs:
           node --version
           npm --version
           df -h
+          command -v sdkmanager
+          sdkmanager --version
           sdkmanager --install 'platforms;android-36' 'platforms;android-37.0' 'build-tools;36.0.0' 'build-tools;37.0.0' 'ndk;27.1.12297006'
       - name: Consumer tarball, Codegen, lifecycle, Debug and Release arm64
         env:
