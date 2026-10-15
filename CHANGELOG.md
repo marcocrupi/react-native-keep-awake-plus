@@ -4,10 +4,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.0.0 — Unreleased
-
-Prepared in the repository on 2026-10-15. At that date npm `latest` and the latest
-GitHub Release remain 1.6.1; committing 2.0.0 does not publish it.
+## 2.0.0
 
 ### Breaking changes
 

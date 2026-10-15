@@ -7,9 +7,8 @@ deactivation. Native coordination between runtimes remains separate.
 
 ## Who needs to change code?
 
-As checked on 2026-10-15, 2.0.0 is committed on GitHub but not published on npm;
-`latest` is still 1.6.1. Use the [installation guide](README.md#installation)
-after publication and rebuild the native app.
+Install 2.0.0 using the [installation guide](README.md#installation), then
+rebuild the native app, including installing Pods on iOS.
 
 Existing hooks/components and matching root activate/deactivate pairs usually
 continue working. You do not need to rewrite every screen. Review code that:

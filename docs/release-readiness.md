@@ -7,18 +7,28 @@ Verified on **2026-10-15** against the public registry and GitHub APIs:
 | Item | Status |
 | --- | --- |
 | Repository version | `2.0.0` in package.json, root lock and example local-package metadata |
-| Published implementation commit on main | [`71cb67772c43cdebf265df74f274d1ad9c6132d5`](https://github.com/marcocrupi/react-native-keep-awake-plus/commit/71cb67772c43cdebf265df74f274d1ad9c6132d5) |
+| Implementation commit pushed to main | [`71cb67772c43cdebf265df74f274d1ad9c6132d5`](https://github.com/marcocrupi/react-native-keep-awake-plus/commit/71cb67772c43cdebf265df74f274d1ad9c6132d5) |
 | JavaScript CI on that commit | [38769209285 — success](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209285) |
 | Stable Android/iOS CI on that commit | [38769209447 — success](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209447) |
+| Remote main before final release-document preparation | [`9dc39cd3066bb1fad2614e73a856297770cdbcbc`](https://github.com/marcocrupi/react-native-keep-awake-plus/commit/9dc39cd3066bb1fad2614e73a856297770cdbcbc) |
+| JavaScript CI on `9dc39cd` | [38796404814 — success](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38796404814) |
+| Stable Android/iOS CI on `9dc39cd` | [38796404695 — queued at this check](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38796404695) |
 | Latest GitHub tag / Release | [v1.6.1](https://github.com/marcocrupi/react-native-keep-awake-plus/releases/tag/v1.6.1) |
 | npm latest / highest published version | [1.6.1](https://www.npmjs.com/package/@marcocrupi/react-native-keep-awake-plus); registry contains 1.5.0, 1.6.0, 1.6.1 |
 | npm 2.0.0 | **Not published** |
 | GitHub tag / Release 2.0.0 | **Not created** |
 
 2.0.0 is prepared in source; it is not a published release. Recheck these mutable
-facts before publication. Documentation revisions after this commit are separate
-release inputs, even though they do not change APIs. No publication, tag or remote
-workflow dispatch is performed by the DOC-02 documentation task.
+facts before publication. The README, changelog and migration guide are prepared
+for the 2.0.0 package; their installation instructions do not prove registry
+availability. The changelog date is intentionally omitted until publication.
+Record the actual publication date after a successful publish, without moving
+the release tag or replacing the published archive.
+
+The final release-document changes are not covered by the CI runs above. Commit
+and push the reviewed changes, then require successful JavaScript and stable
+native CI on that final release SHA. No publication, tag, push or remote workflow
+dispatch is performed by this documentation preparation.
 
 ## Contract and evidence
 
@@ -63,10 +73,10 @@ the final container was reinstalled and verified but not freshly rebuilt/run.
 Runtime PASS transfers by production-input equivalence, not final-container
 rebuild identity. Consult the external review for the detailed comparison.
 
-README, CHANGELOG and MIGRATION are distributed files. DOC-02 changes their bytes,
-so a new archive has a new digest/integrity even when APIs and production sources
-are unchanged. Do not reuse an earlier archive hash as the current publication
-identity. Repack, inspect and retain the final archive plus a comparison of its
+README, CHANGELOG and MIGRATION are distributed files. Documentation edits change
+their bytes, so a new archive has a new digest/integrity even when APIs and
+production sources are unchanged. Do not reuse an earlier archive hash as the
+current publication identity. Repack, inspect and retain the final archive plus a comparison of its
 production inputs. `docs/`, `example/`, iOS harnesses, reports and temporary
 fixtures must not enter the package; existing Java regression sources are
 intentionally distributed for archive-consumer native host tests.

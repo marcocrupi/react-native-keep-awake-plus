@@ -4,11 +4,10 @@ Prevent automatic screen sleep while your React Native app needs an active scree
 `@marcocrupi/react-native-keep-awake-plus` supports Android and iOS, with hooks,
 a component and independent task handles backed by shared ownership.
 
-**Version status (2026-10-15):** this repository contains **2.0.0**, prepared for
-release. npm `latest` and the latest GitHub Release are **1.6.1**; 2.0.0 is not
-published yet. The examples below describe 2.0.0. Check [npm](https://www.npmjs.com/package/@marcocrupi/react-native-keep-awake-plus)
-and [GitHub Releases](https://github.com/marcocrupi/react-native-keep-awake-plus/releases)
-before installing. See [migration from 1.x](MIGRATION.md).
+This guide describes **2.0.0**. Upgrading from 1.x? Read the
+[migration guide](MIGRATION.md) for the shared-ownership behavior and breaking
+changes. Maintainers track publication separately in the
+[release checklist](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/release-readiness.md).
 
 - Keep awake while mounted, focused or enabled by app state.
 - Overlapping screens and tasks hold independent requests.
@@ -21,7 +20,7 @@ before installing. See [migration from 1.x](MIGRATION.md).
 
 ## Installation
 
-Once 2.0.0 is published, install it with either package manager:
+Install 2.0.0 with either package manager:
 
 ```sh
 npm install @marcocrupi/react-native-keep-awake-plus@2.0.0
@@ -31,9 +30,8 @@ npm install @marcocrupi/react-native-keep-awake-plus@2.0.0
 yarn add @marcocrupi/react-native-keep-awake-plus@2.0.0
 ```
 
-These version-pinned commands require publication. An unversioned install currently
-resolves 1.6.1, whose imperative behavior differs. To evaluate the repository
-version before publication, follow the [example guide](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/example/README.md).
+The commands pin the version covered by this guide. To work from a local checkout,
+follow the [example guide](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/example/README.md).
 
 React Native autolinks the native module. On **Android**, rebuild the app; no
 manual package registration or extra manifest permission is needed in a standard
