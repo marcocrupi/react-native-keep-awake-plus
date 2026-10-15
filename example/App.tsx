@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import KeepAwake, {
+  acquireKeepAwake,
   activateKeepAwake,
   deactivateKeepAwake,
   useKeepAwake,
@@ -20,6 +21,10 @@ function App() {
   const [componentOwnerBMounted, setComponentOwnerBMounted] = useState(false);
   const [hookOwnerAMounted, setHookOwnerAMounted] = useState(false);
   const [hookOwnerBMounted, setHookOwnerBMounted] = useState(false);
+  const [conditionalEnabled, setConditionalEnabled] = useState(false);
+  const tokenRelease = useRef<(() => void) | null>(null);
+  useKeepAwake({enabled: conditionalEnabled});
+
   const [lastAction, setLastAction] = useState('app mounted');
   const [lastError, setLastError] = useState('none');
 
@@ -27,6 +32,11 @@ function App() {
     console.log('[KeepAwakeSmoke] App mounted');
 
     return () => {
+      try {
+        tokenRelease.current?.();
+      } finally {
+        tokenRelease.current = null;
+      }
       console.log('[KeepAwakeSmoke] App unmounted');
     };
   }, []);
@@ -89,6 +99,28 @@ function App() {
     }
   };
 
+  const acquireToken = () => {
+    try {
+      if (!tokenRelease.current) {
+        tokenRelease.current = acquireKeepAwake();
+      }
+      recordAction('Token acquired');
+    } catch (error) {
+      recordError('Token acquire', error);
+    }
+  };
+
+  const releaseToken = () => {
+    const release = tokenRelease.current;
+    tokenRelease.current = null;
+    try {
+      release?.();
+      recordAction('Token released');
+    } catch (error) {
+      recordError('Token release', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
@@ -97,6 +129,17 @@ function App() {
         <Text style={styles.caption}>
           React Native 0.85.3 app using the local package.
         </Text>
+
+        <SmokeToggle
+          label="Conditional hook + component enabled"
+          value={conditionalEnabled}
+          onValueChange={setConditionalEnabled}
+        />
+        <KeepAwake enabled={conditionalEnabled} />
+        <View style={styles.actions}>
+          <ActionButton label="Acquire token" onPress={acquireToken} />
+          <ActionButton label="Release token" onPress={releaseToken} />
+        </View>
 
         <SmokeToggle
           label="Component owner A"

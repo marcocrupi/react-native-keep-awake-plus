@@ -42,10 +42,12 @@ function loadLegacyClassModule(moduleName: string) {
 }
 
 describe.each(LEGACY_CLASS_IMPORTS)('legacy Class deep import %s', moduleName => {
-  test('keeps static activate and deactivate as direct native calls', () => {
+  test('keeps one idempotent implicit request for static methods', () => {
     const { KeepAwake, nativeKeepAwake } = loadLegacyClassModule(moduleName);
 
     KeepAwake.activate();
+    KeepAwake.activate();
+    KeepAwake.deactivate();
     KeepAwake.deactivate();
 
     expect(nativeKeepAwake.activate).toHaveBeenCalledTimes(1);

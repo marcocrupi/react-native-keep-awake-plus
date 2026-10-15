@@ -4,7 +4,71 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 2.0.0 - 2026-10-15
+
+### Breaking
+
+- All public keep-awake APIs now share ownership within each JS runtime.
+  `activateKeepAwake()` / `deactivateKeepAwake()` manage one idempotent implicit
+  root request; they no longer bypass owners with last-call-wins native calls.
+- Legacy Class static methods manage a distinct idempotent implicit request.
+  Neither API family releases the other's request or any hook/component/token/
+  Class instance. Only the last owner requests native deactivation.
+- Deactivate without a matching implicit request is a no-op, including when the
+  native module is missing. A throwing final release remains consumed.
+- See [migration from 1.6.1](MIGRATION.md) before upgrading applications that used
+  deactivate as a global override.
+
+### Added
+
+- Optional `enabled` for `useKeepAwake({ enabled })` and `<KeepAwake enabled={...} />`;
+  omitted arguments retain the previous behavior.
+- Opt-in `acquireKeepAwake()` returning an idempotent release, sharing owners with
+  hooks, components and legacy Class instances. Native errors propagate; release
+  remains consumed if native deactivation throws. No OS-state getter is added.
+- Behavioral tests for enabled transitions, StrictMode replay, mixed/token
+  ownership, native failures and fallback; compile-only public TypeScript checks
+  and practical conditional/token controls in the example.
+- Native CI for exact RN 0.86.3 and 0.87.1 Android/iOS New Architecture, with
+  RN 0.85.3 as an optional manual regression anchor; archive provenance, Codegen,
+  Android lifecycle tests and Debug/Release builds, iOS simulator compilation.
+- Package contracts, example typecheck/lint gates and effective iOS CocoaPods
+  settings validation using React Native's dependency helpers.
+
+### Changed
+
+- Declared RN peer range is now `>=0.73.0 <0.88.0`; actual tested versions and
+  Old Architecture limits are documented separately.
+- Android Gradle inherits consumer plugins and SDK policy, enables required
+  BuildConfig generation and omits a library targetSdk policy.
+- iOS podspec uses `min_ios_version_supported` and `install_modules_dependencies`
+  from React Native, retaining native identities and legacy bridge compatibility.
+- Example iOS application uses UIScene lifecycle.
+- README, migration guide, compatibility notes and release checklist describe
+  2.0.0 ownership, baseline CI evidence and AGP 9 new DSL limitations.
+- Root manifest/lock and example local-package lock metadata align at 2.0.0;
+  React Native/dependency versions and peers are unchanged by this version bump.
+
+### Fixed
+
+- Android desired-state reconciliation across Activity/lifecycle changes, shared
+  runtime ownership, listener races, stale work and terminal invalidation; added
+  lifecycle, regression and deadlock host tests.
+- iOS main-queue idle-timer reconciliation, shared runtime ownership and terminal
+  invalidation/deallocation, without holding a state mutex across UIKit calls.
+- Package validation fails closed on malformed metadata and duplicate paths;
+  CocoaPods contracts inspect effective iOS settings, including platform overrides.
+
+### Security
+
+- SEC-01 updated vulnerable development dependencies in root/example, including
+  HTTP/XML/YAML tooling, browser data and Metro 0.84.6 / image-size remediation.
+- `braces` GHSA-vfj7-8cjw-p6xm remains in development tooling. No compatible
+  upstream remediation is confirmed; full npm audit still exits nonzero.
+  SEC-01 closure records this residual risk, not a vulnerability-free repository.
+- No runtime npm dependency is added by the unified ownership coordinator.
+- Narrowed Android package paths to omit the Gradle negative-witness fixture;
+  production sources and Java lifecycle regression test sources are retained.
 
 ## 1.6.1 - 2026-06-27
 

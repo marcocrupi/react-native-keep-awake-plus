@@ -1,11 +1,13 @@
-import React from "react";
-
-export function useKeepAwake() {}
+export function useKeepAwake(_options = {}) {}
 
 export function activateKeepAwake() {}
 
 export function deactivateKeepAwake() {}
 
-export default function KeepAwake() {
+export function acquireKeepAwake() {
+  return () => {};
+}
+
+export default function KeepAwake(_props = {}) {
   return null;
 }

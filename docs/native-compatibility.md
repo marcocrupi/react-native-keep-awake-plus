@@ -20,7 +20,14 @@ check fails if contracts, Android, or iOS fail, skip, or cancel. Repository bran
 protection is not changed by these files; a maintainer can select that check after
 an actual GitHub run. An anchor run never certifies the stable matrix.
 
-**This change does not claim GitHub qualification until it runs on GitHub.**
+Baseline `main@0d4fbfaab0c86d6bb16b4daa26384b6b181ef7fa` is GitHub-qualified
+for the stable matrix on 2026-10-15:
+[Native compatibility run 38753921648](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38753921648)
+passed contracts, both Android lanes, both iOS lanes and the final required
+check. [JavaScript run 38753921594](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38753921594)
+also passed. The manual 0.85.3 anchor is configured separately; this stable run
+does not prove an anchor run or physical-device runtime. Local 2.0.0 API
+changes have their own validation and do not inherit a remote GitHub PASS.
 
 ## What each lane proves
 
@@ -53,6 +60,30 @@ artifacts are selected explicitly with `RCT_USE_PREBUILT_RNCORE=1` and
 `RCT_USE_RN_DEP=1`; the candidate pod itself is compiled from archive sources.
 `RCT_NEW_ARCH_ENABLED=1` is explicit. Successful Pods installation alone is not
 success. Both the legacy and RN 0.87 `ReactCodegen/` output layouts are checked.
+
+## AGP 9 new DSL probe
+
+The P2-A probe uses a fresh official RN 0.87.1 / CLI 20.1.3 consumer with a
+physical local npm archive, Gradle 9.4.1, AGP 9.2.1, JDK 17 and New Architecture.
+With the official template unchanged, configuration succeeds with
+`android.newDsl=false` / `android.builtInKotlin=false`.
+
+**NOT QUALIFIED / UPSTREAM BLOCKED (2026-10-15).** With both flags `true`,
+configuration exits 1 at the unchanged template's `android/app/build.gradle:2`:
+`org.jetbrains.kotlin.android` cannot add extension `kotlin` because it already
+exists. The matching false/false configuration exits 0 and records AGP 9.2.1.
+Autolinking discovers the physically installed package. New-DSL Codegen, module
+and application compilation are **NOT RUN**, blocked before task execution;
+this does not establish package-level new-DSL compatibility.
+
+Setting both to `true` is evaluated separately from the stable CI matrix.
+[RN 0.87's official guidance](https://reactnative.dev/blog/2026/08/11/react-native-0.87)
+recommends both opt-outs, and the template applies `org.jetbrains.kotlin.android`.
+[Android's migration guide](https://developer.android.com/build/migrate-to-built-in-kotlin)
+requires removing that plugin before enabling built-in Kotlin. Do not infer new
+DSL qualification from an AGP 9 build with the opt-outs. The release checklist
+records the probe's actual outcome; no RN/template patch or stable matrix change
+is authorized by this experiment.
 
 ## Runners, cost and reproducibility
 

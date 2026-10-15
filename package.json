@@ -1,6 +1,6 @@
 {
   "name": "@marcocrupi/react-native-keep-awake-plus",
-  "version": "1.6.1",
+  "version": "2.0.0",
   "description": "Maintained fork of @sayem314/react-native-keep-awake. Keep the screen from going to sleep in React Native apps.",
   "main": "index",
   "types": "index.d.ts",
@@ -34,9 +34,13 @@
     "ios/ReactNativeKCKeepAwake.mm",
     "android/build.gradle",
     "android/gradle.properties",
-    "android/src/**",
+    "android/src/main/**",
+    "android/src/newarch/**",
+    "android/src/oldarch/**",
+    "android/src/test/java/**",
     "README.md",
     "CHANGELOG.md",
+    "MIGRATION.md",
     "LICENCE"
   ],
   "repository": {

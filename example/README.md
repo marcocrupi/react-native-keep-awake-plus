@@ -1,3 +1,29 @@
+# Keep Awake Plus smoke app (RN 0.85.3)
+
+Run `npm ci` here after root changes so the physical `file:..` package copy is
+refreshed (`install-links=true` in .npmrc). Start/build as described below.
+
+The smoke UI supports:
+
+- Independent mounted component/hook owners A and B; removing one preserves the
+  others.
+- A **Conditional hook + component enabled** switch: both remain mounted and
+  receive the same `enabled` boolean. Toggling off releases their owners.
+- **Acquire token** / **Release token**: one task handle, held until release or
+  App cleanup; repeated presses do not acquire/release extra owners.
+- **Activate imperative** / **Deactivate imperative** manage one implicit root
+  request. Repeated presses are idempotent. Deactivate preserves all enabled
+  hook/component/token owners; releasing their last owner preserves an active
+  implicit request until its matching deactivate.
+
+This is the 2.0.0 shared ownership contract. See the [migration guide](../MIGRATION.md)
+for the intentional change from last-call-wins and the separate Class static
+request. No public API forces off independent owners.
+
+Labels show requests/actions, not measured OS keep-awake state. Inspect Android
+Window flags or iOS idleTimerDisabled independently for runtime qualification.
+The example's 0.85.3 anchor does not replace the 0.86.3/0.87.1 native CI matrix.
+
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started

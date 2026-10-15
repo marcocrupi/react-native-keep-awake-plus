@@ -1,42 +1,36 @@
 import React from "react";
 
-import { acquireKeepAwakeOwner, releaseKeepAwakeOwner } from "./KeepAwakeOwners";
-import {
-  activateKeepAwakeNative,
-  deactivateKeepAwakeNative,
-} from "./NativeKCKeepAwakeModule";
+import { acquireKeepAwake, createKeepAwakeRequest } from "./KeepAwakeOwners";
+
+const imperativeRequest = createKeepAwakeRequest();
 
 export default class KeepAwake extends React.Component {
   constructor(props) {
     super(props);
 
-    this._keepAwakeOwnerAcquired = false;
+    this._releaseKeepAwake = null;
   }
 
   static activate() {
-    activateKeepAwakeNative();
+    imperativeRequest.activate();
   }
 
   static deactivate() {
-    deactivateKeepAwakeNative();
+    imperativeRequest.deactivate();
   }
 
   componentDidMount() {
-    if (this._keepAwakeOwnerAcquired) {
-      return;
+    if (!this._releaseKeepAwake) {
+      this._releaseKeepAwake = acquireKeepAwake();
     }
-
-    acquireKeepAwakeOwner();
-    this._keepAwakeOwnerAcquired = true;
   }
 
   componentWillUnmount() {
-    if (!this._keepAwakeOwnerAcquired) {
-      return;
+    const release = this._releaseKeepAwake;
+    this._releaseKeepAwake = null;
+    if (release) {
+      release();
     }
-
-    this._keepAwakeOwnerAcquired = false;
-    releaseKeepAwakeOwner();
   }
 
   render() {

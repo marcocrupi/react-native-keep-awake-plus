@@ -195,7 +195,7 @@ describe('KeepAwake reference counting', () => {
     expect(nativeKeepAwake.deactivate).toHaveBeenCalledTimes(1);
   });
 
-  test('keeps imperative functions as direct native pass-through calls', () => {
+  test('keeps one idempotent implicit request for root imperative functions', () => {
     const {
       activateKeepAwake,
       deactivateKeepAwake,
@@ -205,13 +205,13 @@ describe('KeepAwake reference counting', () => {
     activateKeepAwake();
     activateKeepAwake();
 
-    expect(nativeKeepAwake.activate).toHaveBeenCalledTimes(2);
+    expect(nativeKeepAwake.activate).toHaveBeenCalledTimes(1);
     expect(nativeKeepAwake.deactivate).not.toHaveBeenCalled();
 
     deactivateKeepAwake();
     deactivateKeepAwake();
 
-    expect(nativeKeepAwake.activate).toHaveBeenCalledTimes(2);
-    expect(nativeKeepAwake.deactivate).toHaveBeenCalledTimes(2);
+    expect(nativeKeepAwake.activate).toHaveBeenCalledTimes(1);
+    expect(nativeKeepAwake.deactivate).toHaveBeenCalledTimes(1);
   });
 });

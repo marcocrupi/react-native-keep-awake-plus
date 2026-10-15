@@ -1,23 +1,28 @@
 import {FunctionComponent} from 'react';
 
-/**
- * Prevent the screen from sleeping.
- */
+export interface KeepAwakeOptions {
+  /** Acquire an owner while true. Defaults to true. */
+  enabled?: boolean;
+}
+
+export type KeepAwakeProps = KeepAwakeOptions;
+
+/** Acquire the root API's implicit request, idempotently. Native errors propagate. */
 export function activateKeepAwake(): void;
 
-/**
- * Releases screen-sleep prevention.
- */
+/** Release only the root API's implicit request, idempotently. Errors propagate. */
 export function deactivateKeepAwake(): void;
 
 /**
- * React hook to keep the screen awake for as long as the owner component
- * is mounted.
+ * Acquire one shared owner. Call the returned idempotent release when done.
+ * Native errors propagate synchronously; a throwing release is still consumed.
+ * This requests keep-awake; it does not confirm OS state. Other owners survive.
  */
-export function useKeepAwake(): void;
+export function acquireKeepAwake(): () => void;
 
-/**
- * React component to keep the screen awake while this component is rendered.
- */
-declare const KeepAwake: FunctionComponent;
+/** Keep the screen awake while mounted and enabled (true by default). */
+export function useKeepAwake(options?: KeepAwakeOptions): void;
+
+/** Keep the screen awake while mounted and enabled (true by default). */
+declare const KeepAwake: FunctionComponent<KeepAwakeProps>;
 export default KeepAwake;

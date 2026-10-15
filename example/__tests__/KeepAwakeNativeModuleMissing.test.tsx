@@ -50,7 +50,7 @@ describe('KeepAwake native module missing behavior', () => {
     }).not.toThrow();
 
     expectNativeModuleMissingError(() => keepAwakeModule.activateKeepAwake());
-    expectNativeModuleMissingError(() => keepAwakeModule.deactivateKeepAwake());
+    expect(() => keepAwakeModule.deactivateKeepAwake()).not.toThrow();
   });
 
   describe.each(LEGACY_CLASS_IMPORTS)('legacy Class import %s', moduleName => {
@@ -69,7 +69,7 @@ describe('KeepAwake native module missing behavior', () => {
       }).not.toThrow();
 
       expectNativeModuleMissingError(() => keepAwakeModule.default.activate());
-      expectNativeModuleMissingError(() => keepAwakeModule.default.deactivate());
+      expect(() => keepAwakeModule.default.deactivate()).not.toThrow();
     });
   });
 
@@ -80,7 +80,6 @@ describe('KeepAwake native module missing behavior', () => {
     const owner = new KeepAwake({});
 
     expectNativeModuleMissingError(() => owner.componentDidMount());
-    expect(owner._keepAwakeOwnerAcquired).toBe(false);
     expect(() => owner.componentWillUnmount()).not.toThrow();
   });
 
@@ -103,7 +102,6 @@ describe('KeepAwake native module missing behavior', () => {
     expect(() => failedOwner.componentDidMount()).toThrow(
       'Native activate failed',
     );
-    expect(failedOwner._keepAwakeOwnerAcquired).toBe(false);
 
     nativeKeepAwake.activate.mockImplementation(() => {});
 

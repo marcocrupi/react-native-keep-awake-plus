@@ -1,38 +1,22 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
-import { acquireKeepAwakeOwner, releaseKeepAwakeOwner } from "./KeepAwakeOwners";
-import {
-  activateKeepAwakeNative,
-  deactivateKeepAwakeNative,
-} from "./NativeKCKeepAwakeModule";
+import { acquireKeepAwake, createKeepAwakeRequest } from "./KeepAwakeOwners";
 
-export const activateKeepAwake = () => {
-  activateKeepAwakeNative();
-};
+export { acquireKeepAwake };
+const imperativeRequest = createKeepAwakeRequest();
+export const activateKeepAwake = imperativeRequest.activate;
+export const deactivateKeepAwake = imperativeRequest.deactivate;
 
-export const deactivateKeepAwake = () => {
-  deactivateKeepAwakeNative();
-};
-
-export const useKeepAwake = () => {
+export const useKeepAwake = ({ enabled = true } = {}) => {
   useEffect(() => {
-    let released = false;
-
-    acquireKeepAwakeOwner();
-
-    return () => {
-      if (released) {
-        return;
-      }
-
-      released = true;
-      releaseKeepAwakeOwner();
-    };
-  }, []);
+    if (enabled) {
+      return acquireKeepAwake();
+    }
+  }, [enabled]);
 };
 
-export default () => {
-  useKeepAwake();
+export default function KeepAwake({ enabled = true } = {}) {
+  useKeepAwake({ enabled });
 
   return null;
-};
+}
