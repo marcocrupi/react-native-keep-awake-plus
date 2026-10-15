@@ -1,123 +1,157 @@
-# Keep Awake Plus smoke app (RN 0.85.3)
+# Keep Awake Plus example
 
-Run `npm ci` here after root changes so the physical `file:..` package copy is
-refreshed (`install-links=true` in .npmrc). Start/build as described below.
+A focused smoke app for the repository's 2.0.0 API, using **React Native 0.85.3**
+and React 19.2.3. It is the regression anchor, separate from stable RN
+0.86.3/0.87.1 native CI. Read the [library guide](../README.md) and
+[migration guide](../MIGRATION.md) for public API behavior.
 
-The smoke UI supports:
+## Requirements
 
-- Independent mounted component/hook owners A and B; removing one preserves the
-  others.
-- A **Conditional hook + component enabled** switch: both remain mounted and
-  receive the same `enabled` boolean. Toggling off releases their owners.
-- **Acquire token** / **Release token**: one task handle, held until release or
-  App cleanup; repeated presses do not acquire/release extra owners.
-- **Activate imperative** / **Deactivate imperative** manage one implicit root
-  request. Repeated presses are idempotent. Deactivate preserves all enabled
-  hook/component/token owners; releasing their last owner preserves an active
-  implicit request until its matching deactivate.
+- Node **>=22.11.0** (the JS workflow uses 22.23.3), npm and the committed locks.
+- Android SDK/NDK and Java compatible with the RN 0.85.3 template, plus an
+  emulator or connected test device. Java 17 is the native CI baseline.
+- For iOS: macOS, compatible Xcode/iOS simulator, Ruby >=3.1.0, Bundler and
+  CocoaPods satisfying [Gemfile](Gemfile). Native CI uses CocoaPods 1.16.2.
+- Complete the RN [environment setup](https://reactnative.dev/docs/set-up-your-environment)
+  for the platform you intend to run. Keep New Architecture enabled.
 
-This is the 2.0.0 shared ownership contract. See the [migration guide](../MIGRATION.md)
-for the intentional change from last-call-wins and the separate Class static
-request. No public API forces off independent owners.
+The app supports native Android/iOS builds; Expo Go is not a host for this module.
 
-Labels show requests/actions, not measured OS keep-awake state. Inspect Android
-Window flags or iOS idleTimerDisabled independently for runtime qualification.
-The example's 0.85.3 anchor does not replace the 0.86.3/0.87.1 native CI matrix.
+## Clean installation
 
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
-
-# Getting Started
-
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
-
-## Step 1: Start Metro
-
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
-
-To start the Metro dev server, run the following command from the root of your React Native project:
+From the repository root:
 
 ```sh
-# Using npm
+npm ci
+cd example
+npm ci
+npm config get install-links
+```
+
+The last command must print `true`. [package.json](package.json) depends on the
+library through `file:..`. [.npmrc](.npmrc) sets `install-links=true`, so npm packs
+and physically installs the package instead of making a source symlink. This
+avoids local dependency discovery/Codegen issues and tests the package contents.
+Do not bypass peer validation with `--force` or `--legacy-peer-deps`.
+
+After editing package-root files, rerun `npm ci` from `example/` to refresh this
+installed copy. Fast Refresh alone cannot refresh a stale physical package copy.
+Native source or dependency changes also need Pods/native rebuilds. Keep
+installation/generated output out of source control.
+
+## Run Android
+
+From `example/`, start Metro:
+
+```sh
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
+In another terminal, from `example/`, start an emulator or connect your chosen
+test device, then run:
 
 ```sh
-# Using npm
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+If several devices are connected, select the intended device using your installed
+CLI's device options (`npx react-native run-android --help`). Verify the target
+before interacting with personal hardware.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## Run iOS
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+From `example/`, install Ruby dependencies, then Pods from `ios/`:
 
 ```sh
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
+cd ios
 bundle exec pod install
+cd ..
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Keep Metro running in a separate terminal and run from `example/`:
 
 ```sh
-# Using npm
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+You can also open `ios/KeepAwakePlusSmoke.xcworkspace` in Xcode after installing
+Pods. Select an available simulator; device signing is a separate local setup.
+The example uses UIScene; it does not qualify same-process scene reconnection.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## Use the smoke interface
 
-## Step 3: Modify your app
+There is one scrollable smoke screen in [App.tsx](App.tsx), initially with all
+requests disabled. Its controls exercise these behaviors:
 
-Now that you have successfully run the app, let's make changes!
+| Control | Effect |
+| --- | --- |
+| Component owner A / B | Independently mounts/unmounts a default component owner |
+| Hook owner A / B | Independently mounts/unmounts a child calling `useKeepAwake()` |
+| Conditional hook + component enabled | Toggles two mounted owners with the same `enabled` value |
+| Acquire token | Holds one token in a ref; repeated presses do not acquire more |
+| Release token | Consumes that token; repeated presses are harmless |
+| Activate imperative | Acquires the single root implicit request, idempotently |
+| Deactivate imperative | Releases only that root request, idempotently |
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+`owner state` shows the four mounted A/B children. `lastAction`, `lastError` and
+`[KeepAwakeSmoke]` logs record actions/errors; none is an OS-state readout. The
+conditional and token state are not included in the four A/B status rows.
+Token cleanup runs on App unmount. The root imperative request is deliberately
+controlled by its buttons: press Deactivate when finished; do not rely on App
+unmount to release it. A full runtime reload creates a new ownership scope.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Manual ownership sequence
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+1. Begin with all switches off; press Release token and Deactivate imperative.
+2. Enable Component A and Hook B; remove A. B should retain its request.
+3. Enable the conditional switch, then remove B. The conditional owners remain.
+4. Acquire the token twice, then disable the conditional switch. One token remains.
+5. Activate imperative twice; release the token twice. The root request remains.
+6. Deactivate twice. No app owner remains; native deactivation should be requested.
+7. Repeat with the order reversed to check that one owner cannot release another.
 
-## Congratulations! :tada:
+Observe Android `FLAG_KEEP_SCREEN_ON` or iOS `UIApplication.idleTimerDisabled`
+independently when qualifying runtime. Screen-sleep observation is a useful smoke
+check, but labels and JS logs alone do not prove OS state. This app does not expose
+an OS getter. The UI does not exercise Class statics or multiple independent
+tokens; Jest covers those cases, and separate external runtime campaigns used a
+richer harness. Do not claim those UI controls exist here.
 
-You've successfully run and modified your React Native App. :partying_face:
+## JavaScript checks
 
-### Now what?
+From the repository root:
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+```sh
+npm run typecheck
+npm run check:package
+cd example
+npm run typecheck
+npm run lint
+npm test -- --runInBand
+```
 
-# Troubleshooting
+Jest uses controlled native calls for ownership/error regression tests; it does
+not run an emulator, simulator or native module. Lint fails on warnings. See
+[native compatibility](../docs/native-compatibility.md) for fresh archive-consumer
+native build reproduction and the [iOS harness](../ios/tests/README.md) for
+separate lifecycle witnesses.
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## Troubleshooting
 
-# Learn More
+- **Stale API or missing `enabled`/tokens:** rerun `npm ci` in `example/` and rebuild
+  if native inputs changed; verify the physical installed package is 2.0.0.
+- **Native module unavailable:** check autolinking, install Pods on iOS and rebuild
+  the app. Metro restart alone does not add native modules.
+- **Codegen cannot find the local package:** confirm `install-links=true` and that
+  `node_modules/@marcocrupi/react-native-keep-awake-plus` is a directory, not a link.
+- **Still awake after deactivate:** check every switch/token and root request.
+  Deactivate is not a global override in 2.0.0.
+- **CocoaPods helper/header error:** use this app's RN installation and run Pods
+  from `example/ios`, not the repository root; inspect the first Codegen error.
+- **Gradle/SDK error:** use RN 0.85.3's toolchain and app SDK policy. Do not infer
+  that this anchor uses the separate RN 0.87.1 AGP 9 template configuration.
 
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Development-tooling audit findings are tracked in
+[release readiness](../docs/release-readiness.md); they are not hidden by these
+commands. This example and its diagnostics are excluded from the npm package.

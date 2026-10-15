@@ -4,71 +4,80 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.0.0 - 2026-10-15
+## 2.0.0 — Unreleased
 
-### Breaking
+Prepared in the repository on 2026-10-15. At that date npm `latest` and the latest
+GitHub Release remain 1.6.1; committing 2.0.0 does not publish it.
 
-- All public keep-awake APIs now share ownership within each JS runtime.
-  `activateKeepAwake()` / `deactivateKeepAwake()` manage one idempotent implicit
-  root request; they no longer bypass owners with last-call-wins native calls.
-- Legacy Class static methods manage a distinct idempotent implicit request.
-  Neither API family releases the other's request or any hook/component/token/
-  Class instance. Only the last owner requests native deactivation.
-- Deactivate without a matching implicit request is a no-op, including when the
-  native module is missing. A throwing final release remains consumed.
-- See [migration from 1.6.1](MIGRATION.md) before upgrading applications that used
-  deactivate as a global override.
+### Breaking changes
+
+- All public native keep-awake APIs now share ownership within each JS runtime.
+  Root activate/deactivate manage one idempotent implicit request instead of
+  direct last-call-wins native calls. Deactivate releases only that request.
+- Legacy Class statics manage a distinct implicit request. Neither family can
+  release another family's request, a hook, component, token or mounted Class
+  instance. Only the last owner requests native off; there is no force-off API.
+- Deactivate without a matching request is a no-op, including with a missing
+  native module. A throwing final release remains consumed.
+- Modernized native build requirements follow the consumer RN template and
+  CocoaPods helpers; see [compatibility](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md).
+  See [migration from 1.6.1](MIGRATION.md) for affected patterns.
 
 ### Added
 
-- Optional `enabled` for `useKeepAwake({ enabled })` and `<KeepAwake enabled={...} />`;
-  omitted arguments retain the previous behavior.
-- Opt-in `acquireKeepAwake()` returning an idempotent release, sharing owners with
-  hooks, components and legacy Class instances. Native errors propagate; release
-  remains consumed if native deactivation throws. No OS-state getter is added.
-- Behavioral tests for enabled transitions, StrictMode replay, mixed/token
-  ownership, native failures and fallback; compile-only public TypeScript checks
-  and practical conditional/token controls in the example.
-- Native CI for exact RN 0.86.3 and 0.87.1 Android/iOS New Architecture, with
-  RN 0.85.3 as an optional manual regression anchor; archive provenance, Codegen,
-  Android lifecycle tests and Debug/Release builds, iOS simulator compilation.
-- Package contracts, example typecheck/lint gates and effective iOS CocoaPods
-  settings validation using React Native's dependency helpers.
+- Optional `enabled` boolean for the hook and root component, defaulting to true.
+- `acquireKeepAwake()` with an independent, idempotent release for each task.
+- Public TypeScript coverage and example controls for conditional and token owners.
 
 ### Changed
 
-- Declared RN peer range is now `>=0.73.0 <0.88.0`; actual tested versions and
-  Old Architecture limits are documented separately.
-- Android Gradle inherits consumer plugins and SDK policy, enables required
-  BuildConfig generation and omits a library targetSdk policy.
-- iOS podspec uses `min_ios_version_supported` and `install_modules_dependencies`
-  from React Native, retaining native identities and legacy bridge compatibility.
-- Example iOS application uses UIScene lifecycle.
-- README, migration guide, compatibility notes and release checklist describe
-  2.0.0 ownership, baseline CI evidence and AGP 9 new DSL limitations.
-- Root manifest/lock and example local-package lock metadata align at 2.0.0;
-  React Native/dependency versions and peers are unchanged by this version bump.
+- All control APIs use the common JS coordinator; first acquisition and last
+  release request native transitions. Activation errors retain no owner;
+  deactivation errors propagate after consuming cleanup. No OS-state getter added.
+- Android Gradle inherits consumer plugins/SDK policy, enables BuildConfig and
+  leaves target SDK policy to the application.
+- iOS packaging uses RN's minimum-iOS and module-dependency helpers. The example
+  uses UIScene. Native module and package identifiers are preserved.
+- User and maintainer documentation now separates 2.0.0 behavior, publication
+  status, compatibility evidence and release steps.
 
 ### Fixed
 
-- Android desired-state reconciliation across Activity/lifecycle changes, shared
-  runtime ownership, listener races, stale work and terminal invalidation; added
-  lifecycle, regression and deadlock host tests.
-- iOS main-queue idle-timer reconciliation, shared runtime ownership and terminal
-  invalidation/deallocation, without holding a state mutex across UIKit calls.
-- Package validation fails closed on malformed metadata and duplicate paths;
-  CocoaPods contracts inspect effective iOS settings, including platform overrides.
+- Android lifecycle reconciliation, shared native runtime ownership, listener
+  races, stale work and terminal invalidation.
+- iOS main-queue idle-timer reconciliation, shared native runtime ownership and
+  invalidation/deallocation without holding the state mutex across UIKit calls.
+- Package validation rejects malformed metadata and duplicate paths; CocoaPods
+  contracts inspect effective iOS settings, including platform overrides.
+- Excluded the unused Gradle negative-witness fixture from the npm archive;
+  existing Java regression sources remain available for archive-consumer tests.
+
+### Compatibility
+
+- RN peer range widened to `>=0.73.0 <0.88.0`; peers permit installation and do
+  not certify every version. React peers remain `>=18.2.0 <20.0.0`.
+- Stable New Architecture CI: RN 0.86.3 and 0.87.1, Android/iOS. RN 0.85.3 is a
+  separate regression anchor. Old Architecture has historical, best-effort scope.
+- RN 0.87.1 AGP 9 uses official false/false DSL/Kotlin opt-outs. True/true remains
+  unqualified because of the verified upstream template Kotlin extension conflict.
 
 ### Security
 
-- SEC-01 updated vulnerable development dependencies in root/example, including
-  HTTP/XML/YAML tooling, browser data and Metro 0.84.6 / image-size remediation.
-- `braces` GHSA-vfj7-8cjw-p6xm remains in development tooling. No compatible
-  upstream remediation is confirmed; full npm audit still exits nonzero.
-  SEC-01 closure records this residual risk, not a vulnerability-free repository.
-- No runtime npm dependency is added by the unified ownership coordinator.
-- Narrowed Android package paths to omit the Gradle negative-witness fixture;
-  production sources and Java lifecycle regression test sources are retained.
+- Remediated vulnerable development HTTP/XML/YAML, Metro/image-size, browser-data
+  and shell-quote dependency paths. No runtime npm dependency added.
+- Development tooling retains `braces` GHSA-vfj7-8cjw-p6xm; full audits remain
+  nonzero. Security closure documents residual risk, not a clean audit.
+
+### Testing/CI
+
+- Added exact-version native archive-consumer CI with provenance, Codegen,
+  Android lifecycle host tests and Debug/Release builds, and iOS simulator builds.
+- Added typecheck, lint, package and effective CocoaPods contract gates.
+- Added ownership, enabled, StrictMode, missing-module and native-error tests.
+- JS and stable native CI passed on the 2.0.0 implementation commit. Separate
+  local RN 0.87.1 emulator/simulator mixed-owner OS checks passed; CI does not run
+  those runtime checks. Physical devices and same-process scene reconnection
+  remain unqualified. See [evidence](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md).
 
 ## 1.6.1 - 2026-06-27
 

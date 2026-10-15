@@ -1,334 +1,379 @@
 # React Native Keep Awake Plus
 
-`@marcocrupi/react-native-keep-awake-plus` is a React Native library for
-preventing the screen from going to sleep while your app is active.
+Prevent automatic screen sleep while your React Native app needs an active screen.
+`@marcocrupi/react-native-keep-awake-plus` supports Android and iOS, with hooks,
+a component and independent task handles backed by shared ownership.
 
-It is an independently maintained fork by Marco Crupi, based on the original
-work by Kyle Corbitt and Sayem Chowdhury.
+**Version status (2026-10-15):** this repository contains **2.0.0**, prepared for
+release. npm `latest` and the latest GitHub Release are **1.6.1**; 2.0.0 is not
+published yet. The examples below describe 2.0.0. Check [npm](https://www.npmjs.com/package/@marcocrupi/react-native-keep-awake-plus)
+and [GitHub Releases](https://github.com/marcocrupi/react-native-keep-awake-plus/releases)
+before installing. See [migration from 1.x](MIGRATION.md).
 
-## Project status
+- Keep awake while mounted, focused or enabled by app state.
+- Overlapping screens and tasks hold independent requests.
+- Idempotent task cleanup and imperative calls.
+- TypeScript declarations, React Native autolinking and New Architecture Codegen.
 
-The New Architecture native CI matrix covers **React Native 0.86.3 and 0.87.1
-on Android and iOS**, with 0.85.3 as a separate manual regression anchor.
-[Native compatibility](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md) describes the evidence and
-limits. The baseline [native run](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38753921648)
-and [JavaScript run](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38753921594)
-passed at `0d4fbfa` on 2026-10-15. These remote results cover that commit;
-subsequent local changes require their own validation.
-
-The local release candidate is **2.0.0**. Imperative calls now share ownership
-with hooks, components and tokens: deactivate releases only its own request.
-This intentionally replaces the previous last-call-wins behavior. Read the
-[1.6.1 → 2.0.0 migration guide](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/MIGRATION.md) and the
-[release checklist](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/release-readiness.md).
-
-## About this fork
-
-`@marcocrupi/react-native-keep-awake-plus` is an independently maintained
-fork of `@sayem314/react-native-keep-awake`.
-
-The original project was created by Kyle Corbitt and later maintained by Sayem
-Chowdhury. This fork is maintained by Marco Crupi.
-
-The goal of this fork is to keep the package usable for current React Native
-projects while preserving the original public API where possible. The original
-MIT license and copyright notices are preserved.
-
-This fork is not affiliated with or endorsed by the original maintainers unless
-they state otherwise.
+[Installation](#installation) · [Quick start](#quick-start) · [API reference](#api-reference) ·
+[Ownership](#ownership-model) · [React Navigation](#react-navigation) ·
+[Troubleshooting](#troubleshooting) · [Maintainer guides](#testing-and-compatibility-evidence)
 
 ## Installation
 
-Install the package with npm:
+Once 2.0.0 is published, install it with either package manager:
 
 ```sh
-npm install @marcocrupi/react-native-keep-awake-plus
+npm install @marcocrupi/react-native-keep-awake-plus@2.0.0
 ```
-
-Or with Yarn:
 
 ```sh
-yarn add @marcocrupi/react-native-keep-awake-plus
+yarn add @marcocrupi/react-native-keep-awake-plus@2.0.0
 ```
 
-For iOS, run `pod install` in the app's `ios` directory after installing the
-package. Autolinking and the app's React Native Codegen generate the native
-spec; generated sources are not shipped by this package. Rebuild the native app
-after installation. Expo projects need a native development build; Expo Go does
-not include this module.
+These version-pinned commands require publication. An unversioned install currently
+resolves 1.6.1, whose imperative behavior differs. To evaluate the repository
+version before publication, follow the [example guide](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/example/README.md).
 
-On Android use the SDK, NDK, JDK and Gradle versions required by your React Native
-template. The library inherits `rootProject.ext.compileSdkVersion` and
-`rootProject.ext.minSdkVersion`; missing values fail explicitly. It uses the
-consumer's Android/React Native plugins and needs no extra manifest permission.
-Keep New Architecture enabled. For RN 0.87.1 / AGP 9, retain the template's
-`android.newDsl=false` and `android.builtInKotlin=false`: enabling both is
-[blocked upstream](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md#agp-9-new-dsl-probe).
+React Native autolinks the native module. On **Android**, rebuild the app; no
+manual package registration or extra manifest permission is needed in a standard
+autolinked project. Use the SDK, NDK, Java and Gradle versions required by your RN
+template. The library reads the consumer's `compileSdkVersion` and `minSdkVersion`
+from `rootProject.ext`; it does not set the application's target SDK.
 
-The podspec uses React Native's `min_ios_version_supported` and
-`install_modules_dependencies` helpers. RN 0.85.3 and 0.87.1 require iOS 15.1.
-Consumers on older React Native versions must use their version's supported
-iOS minimum and provide these CocoaPods helpers; the previous iOS 8.0
-declaration is no longer retained. This packaging validation does not extend
-the npm peer dependency range or qualify other React Native versions.
+On **iOS**, install Pods and rebuild the native app:
 
-## Usage
-
-### Hook
-
-```js
-import { useKeepAwake } from '@marcocrupi/react-native-keep-awake-plus';
-import React from 'react';
-import { Text, View } from 'react-native';
-
-export default function KeepAwakeExample() {
-  useKeepAwake();
-
-  return (
-    <View>
-      <Text>This screen will stay awake while this component is mounted.</Text>
-    </View>
-  );
-}
+```sh
+cd ios
+bundle exec pod install
+cd ..
 ```
 
-### Component
+Use `pod install` if your project does not manage CocoaPods with Bundler. The app's
+React Native CocoaPods setup must provide `min_ios_version_supported` and
+`install_modules_dependencies`. The podspec inherits that RN minimum; it does not
+promise support for every iOS release. Codegen runs in the consumer build;
+generated sources are not shipped.
 
-```js
-import KeepAwake from '@marcocrupi/react-native-keep-awake-plus';
-import React from 'react';
-import { Text, View } from 'react-native';
+Keep **New Architecture** enabled for the qualified RN versions. Legacy bridge
+sources remain for older RN versions that allow Old Architecture, with historical
+coverage only. RN 0.87.1 / AGP 9 uses the official template settings
+`android.newDsl=false` and `android.builtInKotlin=false`; true/true is
+[not qualified](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md#agp-9-new-dsl-probe).
 
-export default function KeepAwakeExample() {
-  return (
-    <View>
-      <KeepAwake />
-      <Text>This screen will stay awake while KeepAwake is mounted.</Text>
-    </View>
-  );
-}
-```
+**Expo:** Expo Go does not contain this native module. Use a native development
+build and regenerate/rebuild the native app after installation. This repository
+does not qualify a specific Expo SDK.
 
-### Conditional ownership
+**Replacement package:** remove `@sayem314/react-native-keep-awake` before using
+this fork. Native module, pod, Codegen and Android package identifiers retain the
+original names. Installing both packages can cause native collisions.
+
+## React Native compatibility
+
+| Scope | Versions and evidence |
+| --- | --- |
+| npm peers | React `>=18.2.0 <20.0.0`; RN `>=0.73.0 <0.88.0` (installation range) |
+| Stable native CI | RN **0.86.3, 0.87.1**, Android/iOS **New Architecture** |
+| Regression anchor | RN **0.85.3**, included example and separate manual CI selection |
+| Historical evidence | RN **0.73.11**, selected Old/New Architecture checks |
+
+The peer range is broader than the versions qualified by CI. Old Architecture is
+best effort where RN permits it. Root RN 0.86.0 is development tooling, not a
+qualified matrix lane. See [native compatibility](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md)
+for build, host-test and runtime boundaries.
+
+## Quick start
+
+Keep the screen awake while this screen is mounted:
 
 ```tsx
-// Pass focus or another boolean from your app; no navigation dependency needed.
-function FocusedScreen({ isFocused }: { isFocused: boolean }) {
-  useKeepAwake({ enabled: isFocused });
-  return null;
-}
+import React from 'react';
+import {Text, View} from 'react-native';
+import {useKeepAwake} from '@marcocrupi/react-native-keep-awake-plus';
 
-// Equivalent component API:
-<KeepAwake enabled={isFocused} />;
+export default function ReadingScreen() {
+  useKeepAwake();
+  return <View><Text>The screen stays awake while reading.</Text></View>;
+}
 ```
 
-Import `useKeepAwake` or `KeepAwake` as shown above. Omitted options or `enabled`
-default to `true`. `false` acquires no owner; switching to `true` acquires one,
-and switching back or unmounting releases it. Changing only the options object
-does not reacquire. React StrictMode effect replay balances setup and cleanup.
+Or mount the default component in JavaScript or TSX:
 
-### Independent task owners
+```jsx
+import React from 'react';
+import {Text, View} from 'react-native';
+import KeepAwake from '@marcocrupi/react-native-keep-awake-plus';
 
-```js
-import { acquireKeepAwake } from '@marcocrupi/react-native-keep-awake-plus';
+export default function ReadingScreen() {
+  return <View><KeepAwake /><Text>Reading</Text></View>;
+}
+```
 
-async function uploadWithScreenAwake() {
+Unmounting releases that component's request. Other active owners remain active.
+
+## API reference
+
+All functions are synchronous from JavaScript's perspective. Their return values
+acknowledge JavaScript ownership, not the operating system's observed flag.
+
+| API | Parameters | Returns | Behavior / use case |
+| --- | --- | --- | --- |
+| `useKeepAwake()` | None | `void` | Owns a request from effect setup until cleanup |
+| `useKeepAwake({enabled})` | Optional options; `enabled?: boolean`, default `true` | `void` | Owns a request only while mounted and enabled |
+| `<KeepAwake />` | None | Renders `null` | Declarative owner for its mounted lifetime |
+| `<KeepAwake enabled={value} />` | `enabled?: boolean`, default `true` | Renders `null` | Conditional declarative owner |
+| `acquireKeepAwake()` | None | `() => void` | Acquires an independent task owner; returned release is idempotent |
+| `activateKeepAwake()` | None | `void` | Acquires the single implicit root request, idempotently |
+| `deactivateKeepAwake()` | None | `void` | Releases only the implicit root request; absent request is a no-op |
+| Legacy `<LegacyKeepAwake />` | No keep-awake options | Renders `null` | Each mounted Class instance owns an independent request |
+| `LegacyKeepAwake.activate()` | None | `void` | Acquires the separate implicit Class request, idempotently |
+| `LegacyKeepAwake.deactivate()` | None | `void` | Releases only the implicit Class request, idempotently |
+
+Only the component is a default root export. The hook and functions are named
+exports. `KeepAwakeOptions` and `KeepAwakeProps` are TypeScript types with an
+optional boolean `enabled`. Legacy Class is a default deep import from `/Class`
+or `/Class.js`; both paths resolve to the same Class family.
+
+### Conditional workout screen
+
+Call hooks on every render; change `enabled` instead of calling a hook conditionally.
+This complete example keeps the screen awake during a timed workout:
+
+```tsx
+import React, {useEffect, useState} from 'react';
+import {Button, Text, View} from 'react-native';
+import {useKeepAwake} from '@marcocrupi/react-native-keep-awake-plus';
+
+export default function WorkoutScreen() {
+  const [remaining, setRemaining] = useState(0);
+  const running = remaining > 0;
+  useKeepAwake({enabled: running});
+
+  useEffect(() => {
+    if (!running) return;
+    const timer = setInterval(() => setRemaining(n => Math.max(0, n - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [running]);
+
+  return (
+    <View>
+      <Text>{remaining} seconds remaining</Text>
+      <Button title="Start 60 seconds" onPress={() => setRemaining(60)} />
+      <Button title="Stop" onPress={() => setRemaining(0)} />
+    </View>
+  );
+}
+```
+
+The equivalent component expression is `<KeepAwake enabled={running} />`, with
+`KeepAwake` imported as the default export. Omitting `enabled` means `true`.
+Switching to false or unmounting releases the owner; switching back acquires a new
+one. Recreating the options object alone does not reacquire. StrictMode effect
+setup/cleanup replay balances ownership. This example is a foreground UI timer;
+keep-awake does not make timers accurate or runnable in the background.
+
+### Asynchronous operation with a token
+
+Use one acquisition per operation, including overlapping operations. This helper
+accepts your operation and returns its result; cancellation must settle the
+operation so `finally` runs:
+
+```ts
+import {acquireKeepAwake} from '@marcocrupi/react-native-keep-awake-plus';
+
+export async function withScreenAwake<T>(operation: () => Promise<T>): Promise<T> {
   const release = acquireKeepAwake();
   try {
-    await upload(); // your operation
+    return await operation();
   } finally {
     release();
   }
 }
 ```
 
-Each acquisition returns an independent `() => void` release. Call it on every
-completion/cancellation path; repeated release calls are harmless. Tokens share
-ownership with enabled hooks/components and mounted legacy Class instances.
-Acquiring during render is unsafe: use an effect or event/task handler.
+Acquire from an effect or event/task handler, never during render. Always clean up
+on completion, failure and cancellation. A release error propagates from `finally`
+and can replace an operation error; applications needing both errors should
+capture/report them separately. The token does not cancel the operation.
 
-Native activation errors propagate without retaining an owner. Final native
-deactivation errors also propagate, but the release is consumed and cannot
-release another owner; report the error in your app. Hooks follow React's effect
-error handling. Successful calls request native state asynchronously; they do
-not confirm the OS flag. Runtime invalidation revokes native ownership and stale
-callbacks cannot reactivate that runtime; handles do not transfer to a new
-runtime. There is no public asynchronous OS-status API.
+### Multiple owners and idempotent imperative calls
 
-### Imperative functions
+This JavaScript example needs no React component. Run it with no existing owners
+to observe the first/last-owner transitions described in the comments:
 
 ```js
 import {
+  acquireKeepAwake,
   activateKeepAwake,
   deactivateKeepAwake,
 } from '@marcocrupi/react-native-keep-awake-plus';
-import React from 'react';
-import { Button, View } from 'react-native';
 
-export default function KeepAwakeExample() {
-  return (
-    <View>
-      <Button title="Activate" onPress={activateKeepAwake} />
-      <Button title="Deactivate" onPress={deactivateKeepAwake} />
-    </View>
-  );
+export function demonstrateOwners() {
+  const releaseWorkout = acquireKeepAwake(); // first owner: native activate
+  try {
+    const releaseUpload = acquireKeepAwake();
+    try {
+      activateKeepAwake();
+      activateKeepAwake(); // one implicit root request, not two
+      deactivateKeepAwake(); // both task owners remain
+      deactivateKeepAwake(); // no-op
+    } finally {
+      try {
+        deactivateKeepAwake(); // safe even if activation failed
+      } finally {
+        releaseUpload(); // workout remains
+        releaseUpload(); // no-op
+      }
+    }
+  } finally {
+    releaseWorkout(); // last owner: native deactivate
+  }
 }
 ```
 
-## Multi-owner behavior
+The implicit root request suits a single application-controlled switch. Use tokens
+when independent callers need independent cleanup. Pair root activation with root
+deactivation; do not mix it with Class static methods.
 
-The component, hook, legacy Class instances and `acquireKeepAwake()` share one
-JavaScript owner count per loaded package instance/runtime. Native activation is
-requested on the first owner and deactivation on the last release. Disabled
-owners do not count. Native coordinators preserve requests from other valid
-React Native runtimes. Android reconciles the current Activity/window after
-lifecycle changes; iOS serializes idle-timer reconciliation on the main queue.
-This prevents automatic screen sleep; it does not unlock the device, hold a CPU
-wake lock, or keep background work running. Other code changing the same OS flag
-can interfere. Same-process iOS scene reconnection remains unqualified.
-
-## Imperative behavior
-
-All public keep-awake APIs use the same coordinator within one JavaScript runtime.
-Native activation is requested when the first owner acquires; deactivation is
-requested when the last owner releases. Releasing one owner preserves all others.
-
-`activateKeepAwake()` holds **one implicit root request**. Calling it repeatedly
-does not create extra owners. `deactivateKeepAwake()` releases only that request;
-repeated calls, including calls before activation, do nothing. Use
-`acquireKeepAwake()` for multiple independent imperative tasks.
-
-```js
-const release = acquireKeepAwake();
-activateKeepAwake();
-activateKeepAwake(); // still one root request
-deactivateKeepAwake(); // token keeps the native request active
-release(); // last owner: request native deactivation
-```
-
-The `/Class` and `/Class.js` deep imports refer to the same legacy class. Each
-mounted instance owns its own request. `Class.activate()` / `Class.deactivate()`
-hold a **separate implicit Class request**, distinct from the root functions and
-from instances. Both method families are idempotent; pair activation and
-deactivation within the same family. Static deactivate cannot release an
-instance, token, hook, component or root request. The root hook/component provide
-conditional `enabled`; the legacy class does not.
-
-This is a **2.0.0 breaking change** from imperative last-call-wins. There is no
-public force-off operation. Native code preserves ownership across runtimes;
-the JavaScript coordinator only coordinates its own runtime/module instance.
-
-### React Navigation
-
-Navigation is optional. If your app already uses React Navigation, keep an owner
-only while focused (screens can remain mounted while blurred):
+### Legacy Class
 
 ```tsx
+import React from 'react';
+import LegacyKeepAwake from '@marcocrupi/react-native-keep-awake-plus/Class';
+
+export default function LegacyScreen() {
+  return <LegacyKeepAwake />;
+}
+
+export function startLegacyRequest(): void {
+  LegacyKeepAwake.activate();
+}
+
+export function stopLegacyRequest(): void {
+  LegacyKeepAwake.deactivate();
+}
+```
+
+Each instance acquires in `componentDidMount` and releases in
+`componentWillUnmount`. Static calls hold a separate Class request and do not
+release mounted instances or root requests. There is no Class `enabled` option;
+prefer the root hook/component for new conditional code.
+
+## Ownership model
+
+All native public APIs share `KeepAwakeOwners.js` within a loaded package
+instance in one JavaScript runtime. Every hook, component, mounted Class instance
+and token owns an independent request. Root imperative functions hold one implicit
+request; Class static methods hold another. Repeated implicit activation does not
+increment the count. Release is idempotent and can never release another owner.
+
+The **first owner** requests native activation; only the **last release** requests
+native deactivation. Intermediate owners do not issue redundant native calls.
+There is no public force-off operation. Native coordinators combine requests from
+valid native module instances/runtimes; the JS coordinator itself does not span
+runtimes or independently installed package copies.
+
+Android reconciles `FLAG_KEEP_SCREEN_ON` on Activity/window lifecycle changes.
+iOS reconciles `UIApplication.idleTimerDisabled` on the main queue. Native
+invalidation revokes that runtime's ownership and fences stale callbacks; handles
+do not transfer to a new runtime. JS cleanup does not synchronously confirm an OS
+write. **There is no public asynchronous OS-state getter.** Other software writing
+the same flags can interfere; absolute isolation from external writers is not
+promised.
+
+### Cleanup and errors
+
+Native activation errors propagate without retaining an owner, so a later
+acquisition can retry. If final native deactivation throws, the release and its
+implicit slot are already consumed. Repeating release does not retry the failed
+native operation or affect a later owner. Report failures in your task/event
+handling. Hook and Class lifecycle errors follow React's effect/lifecycle error
+handling. Successful JS calls express intent, not measured screen state.
+
+## React Navigation
+
+A blurred screen may stay mounted. If your app already uses React Navigation,
+use its [focus boolean](https://reactnavigation.org/docs/use-is-focused/) to own a
+request only while focused. Render this screen inside your existing navigator:
+
+```tsx
+import React from 'react';
+import {Text} from 'react-native';
 import {useIsFocused} from '@react-navigation/native';
 import {useKeepAwake} from '@marcocrupi/react-native-keep-awake-plus';
 
-function VideoScreen() {
+export default function FocusedScreen() {
   const isFocused = useIsFocused();
   useKeepAwake({enabled: isFocused});
-  return null; // your player
+  return <Text>Keep awake only while this screen is focused.</Text>;
 }
 ```
 
-Alternatively, return `acquireKeepAwake()`'s release from your app's focus effect.
-Pass focus as a boolean prop when no navigation library is installed. Call hooks
-unconditionally; control ownership with `enabled`.
+React Navigation is optional and is not a dependency of this package. Other
+navigation systems can pass their focus boolean as `enabled`.
 
-## React Native 0.85.3 smoke app
+## Migration from 1.x
 
-The repository includes a smoke app in `example/` targeting React Native
-0.85.3. It uses npm, depends on this package through
-`@marcocrupi/react-native-keep-awake-plus: "file:.."`, and enables
-`install-links=true` in `example/.npmrc`.
+2.0.0 is a major release: imperative deactivate no longer overrides other owners.
+Simple matching root pairs and existing declarative ownership usually need no
+rewrite. Applications using deactivate as a global off switch or mixing root
+and Class families must change. See the [1.6.1 → 2.0.0 guide](MIGRATION.md) for
+before/after examples and API selection.
 
-The `install-links=true` setting avoids installing the local `file:..`
-dependency as a symlink. This matters because React Native Codegen may not
-process the package root correctly when the local dependency is symlinked.
+## Troubleshooting
 
-Common example commands:
+| Symptom | Check |
+| --- | --- |
+| Native module unavailable | Rebuild the native app after install; install iOS Pods; verify autolinking and that you are not using Expo Go |
+| Screen remains awake after deactivate | Release tokens, disable/unmount declarative owners, and release the matching root or Class request; there is no global off switch |
+| Screen stays awake after navigation | Mounting does not track focus; pass focus as `enabled` |
+| Native collisions / duplicate symbols | Remove the original keep-awake package and rebuild with only one implementation |
+| Android SDK policy error | Ensure the app's `rootProject.ext` defines `compileSdkVersion` and `minSdkVersion` as its RN template expects |
+| AGP 9 Kotlin extension error with true/true | Restore the official RN 0.87.1 false/false settings; see compatibility notes |
+| iOS helper or generated header missing | Check RN's CocoaPods setup, rerun Pods/Codegen and rebuild; do not hand-copy generated files |
+| No wake lock in a browser/test environment | The non-native root entry is intentionally a no-op; it does not implement the browser Wake Lock API |
 
-```sh
-cd example
-npm install
-npm test
-npm run android
-npm run ios
-```
+Native entrypoints are import-safe if the module is missing: acquisition that
+needs native activation throws `ReactNativeKCKeepAwakeUnavailableError` with a
+rebuild/autolinking message. Deactivate without an implicit request is a no-op.
+The non-native root entry accepts the same options and returns an idempotent
+no-op token release. Legacy Class deep imports are native entrypoints.
 
-## Compatibility
+## Testing and compatibility evidence
 
-Declared peer ranges are React `>=18.2.0 <20.0.0` and React Native
-`>=0.73.0 <0.88.0`. They allow installation; they do not certify every version.
+On 2026-10-15, the 2.0.0 implementation commit passed
+[JavaScript CI](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209285)
+and [native compatibility CI](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209447).
+JS CI covers types, packaging, example lint and Jest. Native CI covers fresh
+archive consumers, Codegen, Android host lifecycle tests and Debug/Release builds,
+and iOS simulator compilation. **Those pipelines do not run device runtime tests.**
 
-| Versions | Architecture | Evidence |
-| --- | --- | --- |
-| RN 0.86.3, 0.87.1 | New Architecture | Android Debug/Release + lifecycle host tests, iOS simulator build in baseline native CI |
-| RN 0.85.3 | New Architecture | Included smoke app, historical runtime checks; separate manual CI regression anchor |
-| RN 0.73.11 | Old and New Architecture | Historical disposable-consumer validation, not a current CI lane |
-| Other versions within peers | New Architecture first; Old best effort where RN permits | Not individually qualified |
+Separate local RN 0.87.1 checks exercised mixed ownership and actual OS flags on
+an Android emulator and iOS simulator. They do not qualify physical devices, store
+signing, every OS version or same-process iOS scene reconnection.
 
-The example stays on RN 0.85.3; root RN 0.86.0 is tooling, not a matrix lane.
-Old Architecture support is best effort and retains bridge sources. RN versions
-that require New Architecture cannot be used to qualify Old Architecture.
-[Compatibility details](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md) distinguish build, host,
-runtime and release evidence, including the AGP 9 new DSL limitation.
+Maintainer guides:
 
-Non-native environments expose the same optional arguments and an idempotent
-no-op release. They provide no browser wake-lock functionality. Missing native
-modules stay import-safe and fail explicitly when an acquisition requires native
-activation. Deactivation without an implicit request is a no-op, even when the
-native module is missing. The root fallback has no native side effects; legacy
-Class deep imports are native entrypoints and are not a browser fallback.
+- [Example development and manual smoke checks](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/example/README.md)
+- [Native matrix, reproduction and evidence limits](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md)
+- [Release readiness and publication checklist](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/release-readiness.md)
+- [Changelog](CHANGELOG.md)
 
-## Security
+## Security and limitations
 
-SEC-01 is closed with a documented residual tooling risk, not a claim of zero
-vulnerabilities. Root/example audits on 2026-10-15 still report
-[`braces` GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-through development tooling; no compatible upstream remediation was confirmed.
-The package ships no runtime npm dependencies. Recheck the actual development
-and consumer graphs before release; do not suppress audit findings or infer
-consumer safety from this repository's audit. See the release checklist.
+This prevents automatic screen sleep; it does not unlock a device, hold a CPU
+wake lock, guarantee background execution or override system policy. Keeping the
+screen on consumes power; release requests when no longer needed.
 
-### Native naming compatibility
+The package ships no runtime npm dependencies. Development tooling has a known
+residual [`braces` advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm);
+security remediation is not a claim of a vulnerability-free repository. See the
+release checklist for audit status, and audit your own resolved consumer graph.
 
-This package is intended to be used as a replacement for
-`@sayem314/react-native-keep-awake`, not alongside it in the same React Native
-app.
+## Credits and license
 
-Although the npm package name is
-`@marcocrupi/react-native-keep-awake-plus`, the native iOS and Android layers
-still keep legacy identifiers inherited from the original package, including
-the iOS pod name, native module name, Codegen name, and Android package.
-
-Installing both packages in the same app is not supported and may cause
-CocoaPods, native module, Codegen, or Android package collisions. Apps should
-depend on one keep-awake package only.
-
-## Development notes
-
-Use `example/` for local development and smoke checks. After changing files in
-the package root, run `cd example && npm install` when you need to refresh the
-example app's installed local copy.
-
-Jest owner-counting tests live in `example/__tests__`. The manual multi-owner
-smoke UI lives in `example/App.tsx`.
-
-## License
-
-This project is available under the MIT license.
-
-## Credits
-
-Original project:
-
-- Kyle Corbitt
-- Sayem Chowdhury
-
-Fork maintainer:
-
-- Marco Crupi
+An independently maintained fork of `@sayem314/react-native-keep-awake`, maintained
+by Marco Crupi, based on work by Kyle Corbitt and Sayem Chowdhury. This fork is not
+affiliated with or endorsed by the original maintainers unless they state otherwise.
+Original license and copyright notices are preserved. Licensed under [MIT](LICENCE).

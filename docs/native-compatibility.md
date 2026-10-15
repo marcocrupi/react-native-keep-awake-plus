@@ -20,14 +20,80 @@ check fails if contracts, Android, or iOS fail, skip, or cancel. Repository bran
 protection is not changed by these files; a maintainer can select that check after
 an actual GitHub run. An anchor run never certifies the stable matrix.
 
-Baseline `main@0d4fbfaab0c86d6bb16b4daa26384b6b181ef7fa` is GitHub-qualified
-for the stable matrix on 2026-10-15:
-[Native compatibility run 38753921648](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38753921648)
-passed contracts, both Android lanes, both iOS lanes and the final required
-check. [JavaScript run 38753921594](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38753921594)
-also passed. The manual 0.85.3 anchor is configured separately; this stable run
-does not prove an anchor run or physical-device runtime. Local 2.0.0 API
-changes have their own validation and do not inherit a remote GitHub PASS.
+The 2.0.0 implementation commit
+[`71cb67772c43cdebf265df74f274d1ad9c6132d5`](https://github.com/marcocrupi/react-native-keep-awake-plus/commit/71cb67772c43cdebf265df74f274d1ad9c6132d5)
+passed the stable matrix on 2026-10-15:
+[Native compatibility run 38769209447](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209447)
+completed contracts, both Android lanes, both iOS lanes and the final required
+check. [JavaScript run 38769209285](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209285)
+also passed. The stable run does not establish a manual anchor run, emulator,
+simulator runtime or physical-device execution. Documentation-only revisions
+change archive bytes; these runs identify the implementation commit they tested.
+
+## Peer range, anchor and historical evidence
+
+| Category | Scope | Interpretation |
+| --- | --- | --- |
+| npm peers | RN `>=0.73.0 <0.88.0`, React `>=18.2.0 <20.0.0` | Resolver range, not exhaustive qualification |
+| Stable CI | RN 0.86.3 and 0.87.1, Android/iOS New Architecture | Current remote build/host-test evidence above |
+| Regression anchor | RN 0.85.3, example and manual anchor selection | Not automatically included in stable CI |
+| Historical RN 0.73.11 | Android Old Architecture build/runtime; Android New Architecture Codegen/build; iOS Pods/build; lint and root/Class smoke | Recorded in the 1.5.0 changelog; not a current CI lane or a new 2.0.0 runtime pass |
+| Other peer versions / Old Architecture | Bridge sources retained where RN permits them | Best effort; not individually qualified |
+
+The example remains RN 0.85.3. Root RN 0.86.0 is tooling, not a stable lane.
+New Architecture is required by the qualified modern RN templates. Retained
+bridge sources do not imply that modern RN can run Old Architecture.
+
+## Runtime evidence and limits
+
+The local 2.0.0 technical campaign and independent review recorded separate
+RN 0.87.1 New Architecture runtime checks:
+
+| Layer | Verified scope | What it does not prove |
+| --- | --- | --- |
+| JavaScript/Jest | Owner identity, enabled transitions, StrictMode replay, cleanup and synchronous errors with controlled native calls | Actual OS flag changes |
+| Android host | Lifecycle/regression/deadlock tests | Emulator or physical-device behavior |
+| Android local runtime | API 36 emulator, Release app; 32 mixed-owner phases with three OS Window flag observations each | Physical hardware, all Android versions, background execution |
+| iOS local runtime | iOS 26.5 simulator, Debug native app with production JS bundle; 95 main-thread UIKit reads over 33 phases | Physical devices, store signing, every iOS release |
+| iOS historical lifecycle campaign | RN 0.85.3/0.87.1 isolated RCTHost/teardown and native UIKit-host witnesses | A fresh 2.0.0 run of every lifecycle scenario |
+
+Local runtime/build checks used an initial 2.0.0 archive before a final packaging
+change. The independent review proved identical production JS/native/type/build
+inputs in the final archive; only changelog/allowlist metadata and removal of an
+unused Gradle fixture differed. The final archive was reinstalled and its bytes,
+lock integrity, types and autolinking checked. Runtime PASS therefore rests on
+**production-input equivalence**, not a fresh build/run of the final container.
+Maintainer provenance is recorded in [release readiness](release-readiness.md).
+
+The native coordinators preserve requests from other valid native module
+instances/runtimes. Android retains desired state across Activity changes and
+serializes Window reconciliation. iOS serializes idle-timer reconciliation on
+the main queue. Invalidation is terminal and revokes ownership; queued work
+cannot grant a revoked runtime new authority. These are implementation/tested
+contracts, not a promise of immediate synchronous OS cleanup or isolation from
+external flag writers. There is no public OS-state getter.
+
+Same-process iOS scene disconnection/reconnection, physical-device qualification,
+store signing and all peer/OS combinations remain **NOT RUN / unqualified**.
+No simulator build alone is described as runtime validation.
+
+## iOS integration
+
+The package supplies a TurboModule spec in `NativeKCKeepAwake.ts`. Consumer
+Codegen produces the generated interfaces during the RN build/Pods process;
+the archive contains sources, not generated products. The podspec uses RN's
+`min_ios_version_supported` and `install_modules_dependencies`, with ARC and
+RN-managed native dependencies. Check the consuming RN version's minimum OS and
+helpers; the old iOS 8 declaration is not a current support promise. The inspected
+RN 0.85.3 example and RN 0.87.1 consumer helpers declare iOS 15.1 as their
+minimum. That build requirement does not establish runtime coverage on iOS 15.1.
+
+The example uses UIScene configuration in its plist and AppDelegate/SceneDelegate.
+This is example application lifecycle setup, not an extra scene delegate that
+consumers must copy into every app. Module invalidation/deallocation and actual
+TurboModule teardown have separate evidence from a scene reconnect in one process.
+See the [iOS lifecycle harness](../ios/tests/README.md) for its host requirements
+and qualification boundaries.
 
 ## What each lane proves
 
@@ -47,9 +113,9 @@ classes for both variants, DEX class descriptors inside both APKs, consumer AGP
 identity, selected New Architecture source set, and Codegen output. These are
 host unit tests and compiled APKs; no emulator/device interaction is asserted.
 
-AGP 9 and its new DSL are different contracts. An AGP 9 consumer must retain
-`android.newDsl=false` and `android.builtInKotlin=false`, as the official RN
-0.87.1 template does. The new DSL is not qualified by this matrix.
+AGP 9 and its new DSL are different contracts. The qualified RN 0.87.1 / AGP 9
+configuration retains `android.newDsl=false` and `android.builtInKotlin=false`,
+as the official template does. The new DSL is not qualified by this matrix.
 
 The iOS lane starts without Pods, generated outputs or DerivedData, pins
 CocoaPods 1.16.2, runs Codegen during `pod install`, and compiles a complete
@@ -63,7 +129,7 @@ success. Both the legacy and RN 0.87 `ReactCodegen/` output layouts are checked.
 
 ## AGP 9 new DSL probe
 
-The P2-A probe uses a fresh official RN 0.87.1 / CLI 20.1.3 consumer with a
+The recorded local probe used a fresh official RN 0.87.1 / CLI 20.1.3 consumer with a
 physical local npm archive, Gradle 9.4.1, AGP 9.2.1, JDK 17 and New Architecture.
 With the official template unchanged, configuration succeeds with
 `android.newDsl=false` / `android.builtInKotlin=false`.
@@ -82,8 +148,8 @@ recommends both opt-outs, and the template applies `org.jetbrains.kotlin.android
 [Android's migration guide](https://developer.android.com/build/migrate-to-built-in-kotlin)
 requires removing that plugin before enabling built-in Kotlin. Do not infer new
 DSL qualification from an AGP 9 build with the opt-outs. The release checklist
-records the probe's actual outcome; no RN/template patch or stable matrix change
-is authorized by this experiment.
+records the probe's actual outcome; the probe did not patch the RN template or
+change the stable matrix.
 
 ## Runners, cost and reproducibility
 
@@ -92,14 +158,6 @@ SDKs 36 and 37.0, build tools 36/37, and NDK 27.1.12297006. iOS uses the standar
 `macos-26` arm64 image and `/Applications/Xcode_26.6.app`; missing Xcode fails
 immediately. Runner OS, SDKs, Xcode and actual versions are logged. Provisioning
 profiles, device signing, larger runners and paid runner labels are unnecessary.
-
-On 2026-10-15 GitHub's runner inventory documents macos-26 arm64 (3 cores,
-7 GB RAM), Xcode 26.6 on that image, and free standard runners for public repos.
-This repository is public and its Actions API reports enabled/allowed-actions
-all with read-only default workflow permissions. The workflows request only
-`contents: read`. This API inspection does not substitute for scheduling/running a GitHub job. See the
-[runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
-and [macOS image inventory](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md).
 
 No dependency, Pods, Codegen, DerivedData or Gradle build cache is restored by
 these workflows. Gradle build and configuration caches are disabled. Each lane
@@ -148,5 +206,6 @@ node scripts/native-ci/negative-witness.cjs /tmp/keep-awake-android-0871 /tmp/ke
 
 The witness restores mutated archive sources in `finally` and verifies byte
 identity; a successful mutation fails the witness. After negative experiments,
-revalidate using a fresh `lane.cjs` workspace. No source/dependency edits,
-commit, push, release, or remote dispatch are performed by these scripts.
+revalidate using a fresh `lane.cjs` workspace. These scripts create and modify disposable consumers; they do not edit the
+checkout's source/dependency files or perform commits, pushes, releases or remote
+dispatches.
