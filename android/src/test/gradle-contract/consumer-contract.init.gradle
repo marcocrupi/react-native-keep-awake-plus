@@ -1,0 +1,51 @@
+// Run against an unmodified RN template containing the installed package:
+// ./gradlew -I /path/to/consumer-contract.init.gradle :marcocrupi_react-native-keep-awake-plus:verifyKeepAwakeConsumer
+// Negative cases: -PkeepAwakeTestMissingSdk=compileSdkVersion (or minSdkVersion).
+gradle.beforeProject { p ->
+    // Apply the deliberately incompatible SDK to the app as well: compileOnly
+    // dependencies alone do not make a library's AAR metadata check reject it.
+    def compileSdk = p.findProperty('keepAwakeTestCompileSdk')
+    if (compileSdk != null && (p.name == 'app' || p.name == 'marcocrupi_react-native-keep-awake-plus')) {
+        p.rootProject.ext.compileSdkVersion = compileSdk.toInteger()
+    }
+    def minSdk = p.findProperty('keepAwakeTestMinSdk')
+    if (minSdk != null && (p.name == 'app' || p.name == 'marcocrupi_react-native-keep-awake-plus')) {
+        p.rootProject.ext.minSdkVersion = minSdk.toInteger()
+    }
+    if (p.name == 'marcocrupi_react-native-keep-awake-plus') {
+        def missing = p.findProperty('keepAwakeTestMissingSdk')
+        if (missing != null) {
+            def original = p.rootProject.ext.get(missing)
+            p.rootProject.ext.set(missing, null)
+            // Do not turn another autolinked library into an unrelated witness.
+            p.afterEvaluate { p.rootProject.ext.set(missing, original) }
+        }
+        p.afterEvaluate {
+            p.tasks.register('verifyKeepAwakeConsumer') {
+                doLast {
+                    def android = p.extensions.getByName('android')
+                    def app = p.rootProject.project(':app')
+                    def libraryAgp = p.extensions.getByName('androidComponents').pluginVersion
+                    def appAgp = app.extensions.getByName('androidComponents').pluginVersion
+                    assert libraryAgp == appAgp : "Library must use the consumer AGP: ${libraryAgp} != ${appAgp}"
+                    assert !p.buildscript.configurations.classpath.allDependencies.any {
+                        it.group == 'com.android.tools.build' && it.name == 'gradle'
+                    } : 'The library must not declare a private AGP classpath'
+                    assert android.namespace == 'com.sayem.keepawake'
+                    assert android.compileSdk == p.rootProject.ext.compileSdkVersion
+                    assert android.defaultConfig.minSdk == p.rootProject.ext.minSdkVersion
+                    assert android.compileSdk == app.extensions.getByName('android').compileSdk
+                    assert android.defaultConfig.minSdk == app.extensions.getByName('android').defaultConfig.minSdk
+                    assert android.buildFeatures.buildConfig == true
+                    assert android.defaultConfig.buildConfigFields.IS_NEW_ARCHITECTURE_ENABLED.value == 'true'
+                    def dirs = android.sourceSets.main.java.srcDirs*.canonicalPath
+                    assert dirs.contains(p.file('src/newarch').canonicalPath)
+                    assert !dirs.contains(p.file('src/oldarch').canonicalPath)
+                    assert p.tasks.findByName('generateCodegenArtifactsFromSchema') != null
+                    assert !p.repositories.any { it.hasProperty('url') && it.url.toString().endsWith('/react-native/android') }
+                    println "KEEP_AWAKE_CONSUMER_PASS agp=${libraryAgp} compileSdk=${android.compileSdk} minSdk=${android.defaultConfig.minSdk}"
+                }
+            }
+        }
+    }
+}

@@ -1,14 +1,11 @@
-buildscript {
-    ext.safeExtGet = {prop, fallback ->
-        rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+// Android and React Native plugins are supplied by the consumer application.
+// Require its SDK policy instead of silently compiling against an obsolete SDK.
+def consumerSdk = { name ->
+    def value = rootProject.ext.has(name) ? rootProject.ext.get(name) : null
+    if (value == null) {
+        throw new GradleException("react-native-keep-awake-plus requires rootProject.ext.${name} from the consumer application")
     }
-    repositories {
-        google()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:7.3.1")
-    }
+    value
 }
 
 def isNewArchitectureEnabled() {
@@ -21,17 +18,19 @@ if (isNewArchitectureEnabled()) {
 }
 
 android {
-    def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
-    if (agpVersion.tokenize('.')[0].toInteger() >= 7) {
-      namespace "com.sayem.keepawake"
-    }
+    namespace "com.sayem.keepawake"
 
-    compileSdkVersion safeExtGet('compileSdkVersion', 31)
+    compileSdk = consumerSdk('compileSdkVersion')
 
     defaultConfig {
-        minSdkVersion safeExtGet('minSdkVersion', 21)
-        targetSdkVersion safeExtGet('targetSdkVersion', 31)
+        minSdk = consumerSdk('minSdkVersion')
+        // targetSdk is the application's policy; libraries do not set it.
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+    }
+
+    // Required by KCKeepAwakePackage on AGP versions where generation is opt-in.
+    buildFeatures {
+        buildConfig = true
     }
 
     sourceSets {
@@ -55,10 +54,6 @@ android {
 }
 
 repositories {
-    maven {
-        // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-        url "$projectDir/../node_modules/react-native/android"
-    }
     mavenCentral()
     google()
 }
@@ -67,7 +62,7 @@ dependencies {
     compileOnly "com.facebook.react:react-android"
     testImplementation "com.facebook.react:react-android"
     testImplementation "junit:junit:4.13.2"
-    // SDK 34 tests also need to compile with the oldest supported Android toolchain's Jetifier.
+    // Keep the SDK 34 lifecycle regression harness stable across consumer toolchains.
     testImplementation "org.robolectric:robolectric:4.11.1"
     testImplementation "org.mockito:mockito-core:4.11.0"
 }
