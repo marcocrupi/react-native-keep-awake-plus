@@ -1,0 +1,34 @@
+// This script is CI evidence only; production Gradle sources remain untouched.
+gradle.afterProject { p ->
+    if (p.name == 'marcocrupi_react-native-keep-awake-plus') {
+        p.tasks.register('verifyNativeMatrix') {
+            doLast {
+                def expected = new File(System.getenv('NATIVE_CI_PACKAGE'), 'android').canonicalFile
+                assert p.projectDir.canonicalFile == expected : "compiled project not candidate tarball: ${p.projectDir}"
+                def android = p.extensions.getByName('android')
+                def app = p.rootProject.project(':app')
+                def agp = p.extensions.getByName('androidComponents').pluginVersion
+                assert agp == app.extensions.getByName('androidComponents').pluginVersion
+                assert p.findProperty('newArchEnabled').toString() == 'true'
+                assert android.buildFeatures.buildConfig
+                assert android.defaultConfig.buildConfigFields.IS_NEW_ARCHITECTURE_ENABLED.value == 'true'
+                def dirs = android.sourceSets.main.java.srcDirs*.canonicalPath
+                assert dirs.contains(p.file('src/newarch').canonicalPath)
+                assert !dirs.contains(p.file('src/oldarch').canonicalPath)
+                // AGP 9 compatibility does not qualify its new DSL.
+                if (agp.major >= 9) {
+                    assert p.findProperty('android.newDsl').toString() == 'false'
+                    assert p.findProperty('android.builtInKotlin').toString() == 'false'
+                }
+                assert p.file('build/generated/source/codegen/java/com/sayem/keepawake/NativeKCKeepAwakeSpec.java').isFile()
+                for (variant in ['debug','release']) {
+                    for (name in ['KCKeepAwake','KCKeepAwakeImpl','KCKeepAwakeCoordinator','KCKeepAwakePackage','NativeKCKeepAwakeSpec']) {
+                        def output = p.file("build/intermediates/javac/${variant}/compile${variant.capitalize()}JavaWithJavac/classes/com/sayem/keepawake/${name}.class")
+                        assert output.isFile() : "missing compiled ${variant} ${name}: ${output}"
+                    }
+                }
+                println "NATIVE_MATRIX_PROVENANCE package=${expected} agp=${agp} newArch=true newDsl=${p.findProperty('android.newDsl')} compileSdk=${android.compileSdk} minSdk=${android.defaultConfig.minSdk}"
+            }
+        }
+    }
+}
