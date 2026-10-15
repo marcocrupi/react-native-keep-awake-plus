@@ -43,6 +43,17 @@ Or with Yarn:
 yarn add @marcocrupi/react-native-keep-awake-plus
 ```
 
+For iOS, run `pod install` in the app's `ios` directory after installing the
+package. Autolinking and the app's React Native Codegen generate the native
+spec; generated sources are not shipped by this package.
+
+The podspec uses React Native's `min_ios_version_supported` and
+`install_modules_dependencies` helpers. RN 0.85.3 and 0.87.1 require iOS 15.1.
+Consumers on older React Native versions must use their version's supported
+iOS minimum and provide these CocoaPods helpers; the previous iOS 8.0
+declaration is no longer retained. This packaging validation does not extend
+the npm peer dependency range or qualify other React Native versions.
+
 ## Usage
 
 ### Hook
