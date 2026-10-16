@@ -72,6 +72,61 @@ test('workflow required gates do not tolerate failure or restore native build ca
   assert.doesNotMatch(yaml,/needs: \[[^\]]*release-monitor/);
 });
 
+function aggregateJob() {
+  const yaml = fs.readFileSync(path.join(__dirname, '../../.github/workflows/native-compat.yml'), 'utf8');
+  const match = yaml.match(/^  required-native:\n((?: {4,}[^\n]*\n|\n)*)/m);
+  assert.ok(match, 'native aggregate job must exist');
+  return match[1];
+}
+
+test('workflow aggregate check names distinguish partial selections from stable coverage', async t => {
+  const job = aggregateJob();
+  const name = job.match(/^    name: (.+)$/m)?.[1];
+  assert.ok(name, 'native aggregate check must have a name');
+  const expression = name.match(/^\$\{\{\s*(.*?)\s*\}\}$/)?.[1];
+  const required = 'Required native compatibility';
+  for (const [event, selection, expected] of [
+    ['pull_request', undefined, required],
+    ['push', undefined, required],
+    ['schedule', undefined, required],
+    ['workflow_dispatch', 'stable', required],
+    ['workflow_dispatch', 'support', required],
+    ['workflow_dispatch', 'window', 'Native compatibility (window)'],
+    ['workflow_dispatch', 'anchor', 'Native compatibility (anchor)'],
+  ]) await t.test(`${event} ${selection ?? '(default)'}`, () => {
+    // This expression's string equality, &&/|| and format have the same semantics
+    // in JS for these string inputs; evaluate the actual workflow, not a copy.
+    const actual = expression ? require('node:vm').runInNewContext(expression, {
+      github: {event_name: event},
+      inputs: selection === undefined ? {} : {selection},
+      format: (template, value) => template.replace('{0}', value),
+    }, {timeout: 1000}) : name;
+    assert.equal(actual, expected);
+  });
+});
+
+test('workflow aggregate fails when any native dependency fails, skips or cancels', () => {
+  const job = aggregateJob();
+  assert.match(job, /^    if: \$\{\{ always\(\) \}\}$/m);
+  assert.match(job, /^    needs: \[contracts, android, ios\]$/m);
+  const run = job.match(/^        run: (.+)$/m)?.[1];
+  assert.ok(run, 'native aggregate must execute its status check');
+  const success = {CONTRACTS: 'success', ANDROID: 'success', IOS: 'success'};
+  for (const [key, dependency] of [['CONTRACTS', 'contracts'], ['ANDROID', 'android'], ['IOS', 'ios']]) {
+    assert.ok(job.includes(key + ': ${{ needs.' + dependency + '.result }}'));
+  }
+  const execute = env => require('node:child_process').spawnSync('sh', ['-c', run], {
+    env: {...process.env, ...env}, encoding: 'utf8',
+  });
+  assert.equal(execute(success).status, 0);
+  for (const dependency of Object.keys(success)) {
+    for (const result of ['failure', 'skipped', 'cancelled']) {
+      const child = execute({...success, [dependency]: result});
+      assert.equal(child.status, 1, `${dependency}=${result}: ${child.stderr}`);
+    }
+  }
+});
+
 test('lane rejects a dynamic RN selection before creating a consumer or executing npm', () => {
   const cp=require('node:child_process'), os=require('node:os');
   const dir=path.join(os.tmpdir(),'native-invalid-'+process.pid+'-'+Date.now());

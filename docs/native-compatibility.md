@@ -57,10 +57,13 @@ in `fmt/format.cc` with a `consteval` error on Xcode 27.0, before any package
 source was compiled. This upstream RN/Xcode limit also affects apps that do not
 use this package.
 
-All selected native jobs must succeed. The final `Required native compatibility`
-check fails if contracts, Android, or iOS fail, skip, or cancel. Repository branch
-protection is not changed by these files; a maintainer can select that check after
-an actual GitHub run. An anchor run never certifies the stable matrix.
+All selected native jobs must succeed. The final aggregate check fails if
+contracts, Android, or iOS fail, skip, or cancel. `stable` and `support` publish
+`Required native compatibility`; partial selections publish
+`Native compatibility (window)` or `Native compatibility (anchor)` and never
+certify the stable matrix. Repository branch protection is not changed by these
+files; a maintainer can select `Required native compatibility` after an actual
+GitHub run.
 
 ### 2.0.1 local lane evidence
 
@@ -261,13 +264,16 @@ upstream release never fails a pull request.
 
 The monitor never edits the matrix. To add a release:
 
-1. Run `lane.cjs android` and `lane.cjs ios` for the exact version locally or in a
-   branch, using the SDK and Xcode its template expects.
-2. Add it to `stable` and `lanes` in `matrix.json`, keeping the two newest
-   releases in `stable`. Move a superseded boundary release to `window` only
-   if it marks a new upstream transition.
-3. Update the contract expectations and the compatibility tables, then require a
-   green `stable` run.
+1. Prepare a local candidate update: add the exact version to `stable` and
+   `lanes` in `matrix.json`, including its SDK and Xcode toolchain, and keep the
+   two newest releases in `stable`. Move a superseded boundary release to
+   `window` only if it marks a new upstream transition. Update the contract
+   expectations and compatibility tables in the same candidate.
+2. Run `lane.cjs android` and `lane.cjs ios` for that exact version, using the
+   SDK and Xcode its template expects. The script accepts only versions already
+   present in the candidate matrix.
+3. Promote the update only after both lanes pass and the candidate has a green
+   `stable` CI run. Adding a matrix entry alone does not establish qualification.
 
 If a release breaks the package, fix the package. Do not cap the peer range.
 

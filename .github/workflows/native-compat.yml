@@ -154,7 +154,7 @@ jobs:
             ${{ runner.temp }}/native-ios-${{ matrix.rn }}/*.tgz
 
   required-native:
-    name: Required native compatibility
+    name: ${{ (inputs.selection == 'window' || inputs.selection == 'anchor') && format('Native compatibility ({0})', inputs.selection) || 'Required native compatibility' }}
     if: ${{ always() }}
     needs: [contracts, android, ios]
     runs-on: ubuntu-24.04

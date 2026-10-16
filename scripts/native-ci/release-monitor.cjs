@@ -16,7 +16,7 @@ async function main() {
   insist(response.ok,`${DIST_TAGS} returned HTTP ${response.status}`);
   const result=assess(await response.json(),policy);
   const message=result.behind
-    ? `React Native ${result.latest} is npm latest, but the newest qualified lane is ${result.qualified}. Run lane.cjs for it on Android and iOS, then add it to matrix.json.`
+    ? `React Native ${result.latest} is npm latest, but the newest qualified lane is ${result.qualified}. First prepare a candidate update to stable and lanes in matrix.json with its toolchain and contract expectations. Then run lane.cjs for it on Android and iOS; promote the update only after both lanes and the stable CI run pass.`
     : `React Native npm latest ${result.latest} is covered by the stable matrix (newest lane ${result.qualified}).`;
   console.log(JSON.stringify(result));
   console.log(message);
