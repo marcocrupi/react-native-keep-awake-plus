@@ -65,6 +65,23 @@ certify the stable matrix. Repository branch protection is not changed by these
 files; a maintainer can select `Required native compatibility` after an actual
 GitHub run.
 
+### 2.0.1 release CI
+
+Release source [`d903b83`](https://github.com/marcocrupi/react-native-keep-awake-plus/commit/d903b8312c4d6a5c89580f2690ac3fdefb0543e3)
+passed on 2026-10-16:
+
+- [JavaScript CI 38872926349](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38872926349).
+- [Stable native CI 38872926109](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38872926109): RN 0.88.0 and 0.87.1, Android/iOS.
+- [Full support CI 38872926030](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38872926030): all ten platform/version lanes, contracts, release monitor and required aggregate passed.
+
+The public npm 2.0.1 archive has SHA-256
+`d04655dd62f3959665041d8911e59c1be2aca10edd5f2b49ca2c479a4896e1fe`.
+Retained CI archives from Android RN 0.88.0 and iOS RN 0.88.0/0.76.9 match
+those published bytes and every member hash. The registry download and a fresh
+RN 0.88.0 consumer also match the archive and lock integrity. The release tag
+remains at the source commit; this evidence update is later documentation.
+These checks establish builds and host tests, not OS runtime qualification.
+
 ### 2.0.1 local lane evidence
 
 Before the 2.0.1 commit, on 2026-10-16, unchanged `lane.cjs` runs on a local

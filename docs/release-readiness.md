@@ -1,24 +1,52 @@
 # Release readiness — 2.0.1
 
-## Next release: 2.0.1 (not published)
+## Publication status
 
-2.0.1 removes the peer upper bounds (RN `>=0.73.0`, React `>=18.2.0`) and
-declares support for every stable RN release with the New Architecture from
-0.76. RN 0.88.0, `latest` since 2026-10-15, was rejected by the 2.0.0 peer
-range. Before publishing, repeat the [completed checklist](#completed-200-release-checklist)
-against the 2.0.1 release SHA and archive, and also:
+Verified on **2026-10-16** against the public npm registry and GitHub:
 
-- [ ] Require a green `stable` run (RN 0.88.0 and 0.87.1) on the release SHA.
-- [ ] Run and require a green manual `support` run (adds RN 0.82.1, 0.78.3 and
-  0.76.9, including the first `macos-15` / Xcode 16.4 iOS lanes).
-- [ ] Confirm the release monitor passes and npm `latest` is still covered.
-- [ ] Verify a clean RN 0.88.0 consumer installs the registry archive with plain
-  `npm install` (no `--legacy-peer-deps`).
+| Item | Status |
+| --- | --- |
+| Published version / npm latest | [2.0.1](https://www.npmjs.com/package/@marcocrupi/react-native-keep-awake-plus/v/2.0.1) / `2.0.1` |
+| Release source commit | [`d903b83`](https://github.com/marcocrupi/react-native-keep-awake-plus/commit/d903b8312c4d6a5c89580f2690ac3fdefb0543e3) |
+| JavaScript CI | [38872926349 — success](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38872926349) |
+| Stable Android/iOS CI | [38872926109 — success](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38872926109), RN 0.88.0 and 0.87.1 |
+| Full support-window Android/iOS CI | [38872926030 — success](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38872926030), adds RN 0.82.1, 0.78.3 and 0.76.9 |
+| GitHub tag / Release | [v2.0.1](https://github.com/marcocrupi/react-native-keep-awake-plus/releases/tag/v2.0.1), annotated tag at the release source commit; public stable release |
+| Published archive SHA-256 | `d04655dd62f3959665041d8911e59c1be2aca10edd5f2b49ca2c479a4896e1fe` |
+| Registry download / clean RN 0.88.0 consumer | Byte-identical archive; all 28 installed members and lock SHA-512 integrity verified with plain npm install |
 
-Pre-commit local lane evidence is recorded in
-[native compatibility](native-compatibility.md#201-local-lane-evidence).
+The exact reviewed archive was published after a successful publication dry run;
+it was not repacked between verification and upload. The release archive and
+SHA256SUMS are also attached to the GitHub Release. This publication-status
+update is later documentation; the release tag remains at the source commit.
+
+The release repeated clean root/example installs, package/example typechecks,
+zero-warning lint, 36 Jest tests, 109 package/native-CI contract tests and
+80 CocoaPods contract witnesses. Root and example audits exited 1 with 9 and
+49 high nodes respectively, all propagating the existing direct `braces`
+GHSA-vfj7-8cjw-p6xm development-tooling advisory. The package has no runtime npm
+dependencies. Native CI establishes build and host-test evidence; OS runtime
+limits below remain unchanged.
+
+Exact archives, integrity/member proofs, raw validation/audit results and
+registry-consumer locks are retained outside the repository in
+`.codex-evidence/keep-awake-npm-2.0.1-p4JqGX/` (relative to the repository parent).
+
+### Completed 2.0.1 release checklist
+
+- [x] Updated installation guides and dated the changelog; committed the release preparation.
+- [x] Required successful JavaScript, stable and full support-window CI on the release SHA.
+- [x] Rechecked the RN release monitor, registry versions/dist-tags and publication access.
+- [x] Packed and inspected the final 28-member archive; verified its clean RN 0.88.0 archive consumer.
+- [x] Published the reviewed archive with public access and latest tag after its dry run.
+- [x] Verified registry integrity, identical downloaded bytes and a clean RN 0.88.0 registry consumer.
+- [x] Created/pushed annotated v2.0.1 and published the stable GitHub Release with archive/checksum assets.
+- [x] Recorded the publication and retained the prior 2.0.0 evidence below.
 
 ## Historical 2.0.0 publication status
+
+The following retained 2.0.0 record is historical; the 2.0.1 status above is
+the current publication state.
 
 Verified on **2026-10-15** against the public npm registry and GitHub:
 
