@@ -200,9 +200,10 @@ missing module throw an explicit rebuild/autolinking error.
 
 Install 2.0.0 after publication, run `pod install` on iOS and rebuild your app.
 Never install this fork alongside the original package: native identifiers collide.
-The RN peer range remains `>=0.73.0 <0.88.0`; it does not qualify every version.
-RN 0.86.3/0.87.1 are the New Architecture CI lanes; 0.85.3 is the regression
-anchor. Old Architecture is best effort. AGP 9 new DSL true/true remains
+From 2.0.1 the RN peer range is `>=0.73.0` with no upper bound (React
+`>=18.2.0`). Every stable RN release with the New Architecture, from 0.76, is
+supported. RN 0.88.0/0.87.1 are the PR CI lanes, 0.82.1/0.78.3/0.76.9 the weekly
+window lanes and 0.85.3 the regression anchor. Old Architecture is best effort. AGP 9 new DSL true/true remains
 UPSTREAM BLOCKED. The JS ownership change itself requires no RN upgrade, but
 older consumers must check the modernized Gradle/CocoaPods requirements before
 upgrading the package.

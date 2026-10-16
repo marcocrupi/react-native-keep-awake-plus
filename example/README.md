@@ -1,9 +1,10 @@
 # Keep Awake Plus example
 
 A focused smoke app for the repository's 2.0.0 API, using **React Native 0.85.3**
-and React 19.2.3. It is the regression anchor, separate from stable RN
-0.86.3/0.87.1 native CI. Read the [library guide](../README.md) and
-[migration guide](../MIGRATION.md) for public API behavior.
+and React 19.2.3. It is the regression anchor, separate from the RN
+0.88.0/0.87.1 PR lanes and the 0.82.1/0.78.3/0.76.9 support-window lanes.
+Read the [library guide](../README.md) and [migration guide](../MIGRATION.md)
+for public API behavior.
 
 ## Requirements
 

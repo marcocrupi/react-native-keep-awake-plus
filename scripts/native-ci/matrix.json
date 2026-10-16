@@ -1,7 +1,13 @@
 {
+  "newArchitectureFloor": "0.76.0",
   "stable": [
-    "0.87.1",
-    "0.86.3"
+    "0.88.0",
+    "0.87.1"
+  ],
+  "window": [
+    "0.82.1",
+    "0.78.3",
+    "0.76.9"
   ],
   "anchor": [
     "0.85.3"
@@ -10,10 +16,31 @@
   "node": "24.14.1",
   "npm": "11.11.0",
   "cocoapods": "1.16.2",
-  "xcode": "26.6",
   "newArchitecture": true,
-  "iosStable": [
-    "0.87.1",
-    "0.86.3"
-  ]
+  "lanes": {
+    "0.88.0": {
+      "android": ["platforms;android-37.0", "build-tools;37.0.0", "ndk;27.1.12297006"],
+      "ios": {"runner": "macos-26", "xcode": "26.6"}
+    },
+    "0.87.1": {
+      "android": ["platforms;android-37.0", "build-tools;37.0.0", "ndk;27.1.12297006"],
+      "ios": {"runner": "macos-26", "xcode": "26.6"}
+    },
+    "0.85.3": {
+      "android": ["platforms;android-36", "build-tools;36.0.0", "ndk;27.1.12297006"],
+      "ios": {"runner": "macos-26", "xcode": "26.6"}
+    },
+    "0.82.1": {
+      "android": ["platforms;android-36", "build-tools;36.0.0", "ndk;27.1.12297006"],
+      "ios": {"runner": "macos-26", "xcode": "26.6"}
+    },
+    "0.78.3": {
+      "android": ["platforms;android-35", "build-tools;35.0.0", "ndk;27.1.12297006"],
+      "ios": {"runner": "macos-15", "xcode": "16.4"}
+    },
+    "0.76.9": {
+      "android": ["platforms;android-35", "build-tools;35.0.0", "ndk;26.1.10909125"],
+      "ios": {"runner": "macos-15", "xcode": "16.4"}
+    }
+  }
 }

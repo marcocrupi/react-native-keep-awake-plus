@@ -11,6 +11,8 @@ import com.facebook.react.module.model.ReactModuleInfoProvider;
 import java.util.HashMap;
 import java.util.Map;
 
+// TurboReactPackage is deprecated, but its replacement BaseReactPackage only exists from
+// RN 0.74 while the peer range still starts at 0.73. Switch when that floor is raised.
 public class KCKeepAwakePackage extends TurboReactPackage {
 
     @Nullable
@@ -35,7 +37,6 @@ public class KCKeepAwakePackage extends TurboReactPackage {
                             KCKeepAwakeImpl.NAME,
                             false, // canOverrideExistingModule
                             false, // needsEagerInit
-                            false, // hasConstants
                             false, // isCxxModule
                             isTurboModule // isTurboModule
                     ));
