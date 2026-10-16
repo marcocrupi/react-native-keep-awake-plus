@@ -141,7 +141,7 @@ separate lifecycle witnesses.
 ## Troubleshooting
 
 - **Stale API or missing `enabled`/tokens:** rerun `npm ci` in `example/` and rebuild
-  if native inputs changed; verify the physical installed package is 2.0.0.
+  if native inputs changed; verify the physical installed package is 2.0.1.
 - **Native module unavailable:** check autolinking, install Pods on iOS and rebuild
   the app. Metro restart alone does not add native modules.
 - **Codegen cannot find the local package:** confirm `install-links=true` and that

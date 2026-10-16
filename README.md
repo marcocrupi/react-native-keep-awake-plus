@@ -4,7 +4,7 @@ Prevent automatic screen sleep while your React Native app needs an active scree
 `@marcocrupi/react-native-keep-awake-plus` supports Android and iOS, with hooks,
 a component and independent task handles backed by shared ownership.
 
-This guide describes **2.0.0**. Upgrading from 1.x? Read the
+This guide describes **2.0.1**. Upgrading from 1.x? Read the
 [migration guide](MIGRATION.md) for the shared-ownership behavior and breaking
 changes. Maintainers track publication separately in the
 [release checklist](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/release-readiness.md).
@@ -20,14 +20,14 @@ changes. Maintainers track publication separately in the
 
 ## Installation
 
-Install 2.0.0 with either package manager:
+Install 2.0.1 with either package manager:
 
 ```sh
-npm install @marcocrupi/react-native-keep-awake-plus@2.0.0
+npm install @marcocrupi/react-native-keep-awake-plus@2.0.1
 ```
 
 ```sh
-yarn add @marcocrupi/react-native-keep-awake-plus@2.0.0
+yarn add @marcocrupi/react-native-keep-awake-plus@2.0.1
 ```
 
 The commands pin the version covered by this guide. To work from a local checkout,

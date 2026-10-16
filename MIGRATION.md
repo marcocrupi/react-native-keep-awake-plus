@@ -7,7 +7,7 @@ deactivation. Native coordination between runtimes remains separate.
 
 ## Who needs to change code?
 
-Install 2.0.0 using the [installation guide](README.md#installation), then
+Install 2.0.1 using the [installation guide](README.md#installation), then
 rebuild the native app, including installing Pods on iOS.
 
 Existing hooks/components and matching root activate/deactivate pairs usually
@@ -198,7 +198,7 @@ missing module throw an explicit rebuild/autolinking error.
 
 ## Installation and compatibility
 
-Install 2.0.0 after publication, run `pod install` on iOS and rebuild your app.
+Install 2.0.1, run `pod install` on iOS and rebuild your app.
 Never install this fork alongside the original package: native identifiers collide.
 From 2.0.1 the RN peer range is `>=0.73.0` with no upper bound (React
 `>=18.2.0`). Every stable RN release with the New Architecture, from 0.76, is

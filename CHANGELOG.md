@@ -4,7 +4,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.0.1
+## 2.0.1 — 2026-10-16
 
 ### Compatibility
 
@@ -30,6 +30,10 @@ All notable changes to this project will be documented in this file.
   is newer than the newest CI lane. It never gates pull requests.
 - Contract tests reject capped peers and require lanes from the 0.76 floor to
   the newest stable release.
+- Partial `window` and `anchor` runs publish distinct aggregate check names;
+  only `stable` and `support` publish `Required native compatibility`.
+- Corrected the release-monitor instructions to prepare the candidate matrix
+  and toolchain before running a new React Native version's lanes.
 
 ## 2.0.0 — 2026-10-15
 

@@ -1,4 +1,4 @@
-# Release readiness — 2.0.0
+# Release readiness — 2.0.1
 
 ## Next release: 2.0.1 (not published)
 
@@ -18,7 +18,7 @@ against the 2.0.1 release SHA and archive, and also:
 Pre-commit local lane evidence is recorded in
 [native compatibility](native-compatibility.md#201-local-lane-evidence).
 
-## Publication status
+## Historical 2.0.0 publication status
 
 Verified on **2026-10-15** against the public npm registry and GitHub:
 
