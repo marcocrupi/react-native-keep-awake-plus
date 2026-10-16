@@ -4,28 +4,42 @@ on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    # Weekly: whole New Architecture support window plus the RN release monitor.
+    - cron: '23 5 * * 1'
   workflow_dispatch:
     inputs:
       selection:
-        description: 'stable: required targets; anchor: separate RN 0.85.3 regression run'
+        description: 'stable: latest RN lanes; support: stable plus older New Architecture boundaries; window: boundaries only; anchor: example RN regression run'
         type: choice
-        options: [stable, anchor]
+        options: [stable, support, window, anchor]
         default: stable
 
 permissions:
   contents: read
 
 concurrency:
-  group: native-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.selection || 'stable' }}
+  group: native-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.selection || (github.event_name == 'schedule' && 'support') || 'stable' }}
   cancel-in-progress: true
 
 jobs:
+  release-monitor:
+    name: React Native release monitor
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.1
+      - run: node scripts/native-ci/release-monitor.cjs
+
   contracts:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
-      android: ${{ steps.matrix.outputs.android }}
-      ios: ${{ steps.matrix.outputs.ios }}
+      lanes: ${{ steps.matrix.outputs.lanes }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,16 +48,12 @@ jobs:
       - run: node --test scripts/native-ci/contracts.test.cjs
       - id: matrix
         env:
-          SELECTION: ${{ inputs.selection || 'stable' }}
+          SELECTION: ${{ inputs.selection || (github.event_name == 'schedule' && 'support') || 'stable' }}
         run: |
           node - <<'NODE' >> "$GITHUB_OUTPUT"
           const p = require('./scripts/native-ci/matrix.json');
-          const {selectMatrix} = require('./scripts/native-ci/lib.cjs');
-          const android = selectMatrix(p, process.env.SELECTION);
-          const ios = process.env.SELECTION === 'anchor' ? android : android.filter(v => p.iosStable.includes(v));
-          if (!ios.length) throw new Error('empty iOS matrix');
-          console.log('android='+JSON.stringify(android));
-          console.log('ios='+JSON.stringify(ios));
+          const {laneEntries} = require('./scripts/native-ci/lib.cjs');
+          console.log('lanes='+JSON.stringify(laneEntries(p, process.env.SELECTION)));
           NODE
 
   android:
@@ -55,7 +65,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        rn: ${{ fromJSON(needs.contracts.outputs.android) }}
+        include: ${{ fromJSON(needs.contracts.outputs.lanes) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -67,7 +77,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v4
-      - name: Record runner and provision exact SDKs
+      - name: Record runner and provision the template's exact SDKs
+        env:
+          RN_VERSION: ${{ matrix.rn }}
         run: |
           uname -a
           java -version
@@ -76,7 +88,7 @@ jobs:
           df -h
           command -v sdkmanager
           sdkmanager --version
-          sdkmanager --install 'platforms;android-36' 'platforms;android-37.0' 'build-tools;36.0.0' 'build-tools;37.0.0' 'ndk;27.1.12297006'
+          node -e 'const sdk=require("./scripts/native-ci/matrix.json").lanes[process.env.RN_VERSION].android;console.log(sdk.join(" "));const r=require("node:child_process").spawnSync("sdkmanager",["--install",...sdk],{stdio:"inherit"});process.exit(r.status??1)'
       - name: Consumer tarball, Codegen, lifecycle, Debug and Release arm64
         env:
           RN_VERSION: ${{ matrix.rn }}
@@ -98,15 +110,15 @@ jobs:
   ios:
     name: iOS RN ${{ matrix.rn }}
     needs: contracts
-    runs-on: macos-26
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 1
       matrix:
-        rn: ${{ fromJSON(needs.contracts.outputs.ios) }}
+        include: ${{ fromJSON(needs.contracts.outputs.lanes) }}
     env:
-      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

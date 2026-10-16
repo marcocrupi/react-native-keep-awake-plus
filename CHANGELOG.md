@@ -4,6 +4,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.0.1
+
+### Compatibility
+
+- Supported: every stable React Native release with the New Architecture, from
+  0.76 onward. See the [support policy](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md#support-policy).
+- Removed the peer upper bounds: RN `>=0.73.0` (was `<0.88.0`) and React
+  `>=18.2.0` (was `<20.0.0`). RN 0.88.0 and later releases now install without
+  `ERESOLVE`. RN 0.73–0.75 and Old Architecture remain best effort.
+
+### Changed
+
+- Android registers the module with the non-deprecated six-argument
+  `ReactModuleInfo` constructor, available across the whole peer range.
+  `TurboReactPackage` stays because `BaseReactPackage` requires RN 0.74.
+
+### Testing/CI
+
+- Native CI lanes now carry per-release toolchains (Android SDK/NDK, macOS
+  runner and Xcode). PR lanes: RN 0.88.0 and 0.87.1. New weekly/manual window
+  lanes: RN 0.82.1, 0.78.3 and 0.76.9; 0.76/0.78 iOS use Xcode 16.4 because
+  their `fmt` does not compile with newer Xcode.
+- Added a scheduled React Native release monitor that fails when npm `latest`
+  is newer than the newest CI lane. It never gates pull requests.
+- Contract tests reject capped peers and require lanes from the 0.76 floor to
+  the newest stable release.
+
 ## 2.0.0 — 2026-10-15
 
 ### Breaking changes

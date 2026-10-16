@@ -1,5 +1,23 @@
 # Release readiness — 2.0.0
 
+## Next release: 2.0.1 (not published)
+
+2.0.1 removes the peer upper bounds (RN `>=0.73.0`, React `>=18.2.0`) and
+declares support for every stable RN release with the New Architecture from
+0.76. RN 0.88.0, `latest` since 2026-10-15, was rejected by the 2.0.0 peer
+range. Before publishing, repeat the [completed checklist](#completed-200-release-checklist)
+against the 2.0.1 release SHA and archive, and also:
+
+- [ ] Require a green `stable` run (RN 0.88.0 and 0.87.1) on the release SHA.
+- [ ] Run and require a green manual `support` run (adds RN 0.82.1, 0.78.3 and
+  0.76.9, including the first `macos-15` / Xcode 16.4 iOS lanes).
+- [ ] Confirm the release monitor passes and npm `latest` is still covered.
+- [ ] Verify a clean RN 0.88.0 consumer installs the registry archive with plain
+  `npm install` (no `--legacy-peer-deps`).
+
+Pre-commit local lane evidence is recorded in
+[native compatibility](native-compatibility.md#201-local-lane-evidence).
+
 ## Publication status
 
 Verified on **2026-10-15** against the public npm registry and GitHub:
@@ -81,9 +99,11 @@ intentionally distributed for archive-consumer native host tests.
 
 ## Compatibility and runtime limits
 
-The peer range `>=0.73.0 <0.88.0` permits npm resolution; only the exact stable
-versions above have current remote qualification. Historical RN 0.73.11 checks
-and Old Architecture evidence do not qualify every peer or 2.0.0 runtime.
+2.0.0 published the peer range `>=0.73.0 <0.88.0`; only the exact stable
+versions above had remote qualification at that time. From 2.0.1 the range is
+uncapped; see the [support policy](native-compatibility.md#support-policy).
+Historical RN 0.73.11 checks and Old Architecture evidence do not qualify every
+peer or 2.0.0 runtime.
 
 AGP 9 with the official RN 0.87.1 template's `android.newDsl=false` and
 `android.builtInKotlin=false` is covered. True/true is **NOT QUALIFIED / UPSTREAM

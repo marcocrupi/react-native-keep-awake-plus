@@ -8,13 +8,24 @@ function json(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function digest(file, algorithm = 'sha256') { return crypto.createHash(algorithm).update(fs.readFileSync(file)).digest('hex'); }
 function strictVersion(version, policy) {
   insist(/^\d+\.\d+\.\d+$/.test(version), `exact stable RN version required: ${version}`);
-  insist([...policy.stable, ...policy.anchor].includes(version), `RN ${version} absent from explicit matrix`);
+  insist([...policy.stable, ...policy.window, ...policy.anchor].includes(version), `RN ${version} absent from explicit matrix`);
+  insist(policy.lanes?.[version]?.android?.length && policy.lanes[version].ios?.xcode, `RN ${version} has no lane toolchain`);
   return version;
 }
+// 'support' is the whole declared New Architecture window: current stable plus older boundaries.
+const SELECTIONS = {stable:['stable'], window:['window'], anchor:['anchor'], support:['stable','window']};
 function selectMatrix(policy, selection) {
-  insist(['stable','anchor'].includes(selection), `unknown matrix selection ${selection}`);
-  const values = policy[selection]; insist(Array.isArray(values) && values.length, 'empty matrix');
+  insist(Object.hasOwn(SELECTIONS, selection), `unknown matrix selection ${selection}`);
+  const values = SELECTIONS[selection].flatMap(key => policy[key] ?? []); insist(values.length, 'empty matrix');
   return values.map(v => strictVersion(v, policy));
+}
+// One GitHub matrix entry per RN version, with the runner/Xcode its template requires.
+function laneEntries(policy, selection) {
+  return selectMatrix(policy, selection).map(rn => ({rn, runner: policy.lanes[rn].ios.runner, xcode: policy.lanes[rn].ios.xcode}));
+}
+function compareVersions(a, b) {
+  const [x, y] = [a, b].map(v => v.split('.').map(Number));
+  return x[0] - y[0] || x[1] - y[1] || x[2] - y[2];
 }
 function command(executable, args, options) {
   const {cwd,log,env={}}=options;
@@ -59,4 +70,4 @@ function findIOSCodegen(base) {
   const found=['','ReactCodegen/'].map(prefix=>path.join(base,prefix,'ReactNativeKCKeepAwakeSpec/ReactNativeKCKeepAwakeSpec.h')).filter(p=>fs.existsSync(p));
   insist(found.length===1,'missing or ambiguous iOS package Codegen header');return found[0];
 }
-module.exports={findIOSCodegen,insist,json,digest,strictVersion,selectMatrix,command,capture,runStages,files,verifyInstalled};
+module.exports={findIOSCodegen,insist,json,digest,strictVersion,selectMatrix,laneEntries,compareVersions,command,capture,runStages,files,verifyInstalled};

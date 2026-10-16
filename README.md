@@ -53,9 +53,10 @@ React Native CocoaPods setup must provide `min_ios_version_supported` and
 promise support for every iOS release. Codegen runs in the consumer build;
 generated sources are not shipped.
 
-Keep **New Architecture** enabled for the qualified RN versions. Legacy bridge
-sources remain for older RN versions that allow Old Architecture, with historical
-coverage only. RN 0.87.1 / AGP 9 uses the official template settings
+Keep the **New Architecture** enabled (it is the default from RN 0.76 and the
+only option from RN 0.82). Legacy bridge sources remain for older RN versions
+that allow Old Architecture, with historical coverage only. RN 0.87+ / AGP 9
+uses the official template settings
 `android.newDsl=false` and `android.builtInKotlin=false`; true/true is
 [not qualified](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md#agp-9-new-dsl-probe).
 
@@ -69,17 +70,24 @@ original names. Installing both packages can cause native collisions.
 
 ## React Native compatibility
 
+**Supported:** every stable React Native release with the **New Architecture**,
+from **0.76** onward, on Android and iOS.
+
 | Scope | Versions and evidence |
 | --- | --- |
-| npm peers | React `>=18.2.0 <20.0.0`; RN `>=0.73.0 <0.88.0` (installation range) |
-| Stable native CI | RN **0.86.3, 0.87.1**, Android/iOS **New Architecture** |
+| npm peers | React `>=18.2.0`; RN `>=0.73.0`, with **no upper bound** |
+| Native CI on every PR | RN **0.88.0, 0.87.1**, Android/iOS **New Architecture** |
+| Weekly support-window CI | RN **0.82.1, 0.78.3, 0.76.9** plus the PR lanes |
 | Regression anchor | RN **0.85.3**, included example and separate manual CI selection |
-| Historical evidence | RN **0.73.11**, selected Old/New Architecture checks |
+| Best effort | RN 0.73–0.75 and Old Architecture; historical RN **0.73.11** checks |
 
-The peer range is broader than the versions qualified by CI. Old Architecture is
-best effort where RN permits it. Root RN 0.86.0 is development tooling, not a
-qualified matrix lane. See [native compatibility](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md)
-for build, host-test and runtime boundaries.
+New RN releases install without a peer conflict. A weekly monitor flags
+each new release, and its Android/iOS lanes are added to the matrix. Until then
+the release is supported but not yet CI-verified; please report any regression.
+The window CI covers the 0.76 floor, the React 19 switch (0.78) and the removal
+of the Old Architecture (0.82). Root RN 0.86.0 is development tooling, not a
+matrix lane. See [native compatibility](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md#support-policy)
+for the policy, toolchains and build, host-test and runtime boundaries.
 
 ## Quick start
 
@@ -328,7 +336,8 @@ before/after examples and API selection.
 | Screen stays awake after navigation | Mounting does not track focus; pass focus as `enabled` |
 | Native collisions / duplicate symbols | Remove the original keep-awake package and rebuild with only one implementation |
 | Android SDK policy error | Ensure the app's `rootProject.ext` defines `compileSdkVersion` and `minSdkVersion` as its RN template expects |
-| AGP 9 Kotlin extension error with true/true | Restore the official RN 0.87.1 false/false settings; see compatibility notes |
+| AGP 9 Kotlin extension error with true/true | Restore the official RN 0.87+ false/false settings; see compatibility notes |
+| RN 0.76–0.78 iOS: `consteval` error in `fmt` | Upstream RN/Xcode issue, not this package: build with Xcode 16.x or upgrade React Native |
 | iOS helper or generated header missing | Check RN's CocoaPods setup, rerun Pods/Codegen and rebuild; do not hand-copy generated files |
 | No wake lock in a browser/test environment | The non-native root entry is intentionally a no-op; it does not implement the browser Wake Lock API |
 
@@ -346,6 +355,11 @@ and [native compatibility CI](https://github.com/marcocrupi/react-native-keep-aw
 JS CI covers types, packaging, example lint and Jest. Native CI covers fresh
 archive consumers, Codegen, Android host lifecycle tests and Debug/Release builds,
 and iOS simulator compilation. **Those pipelines do not run device runtime tests.**
+
+For 2.0.1, local archive-consumer lanes passed on Android for RN 0.76.9,
+0.78.3, 0.82.1, 0.87.1 and 0.88.0. On iOS (Xcode 27) they passed for 0.82.1 and
+0.88.0. RN 0.76/0.78 iOS run on Xcode 16.4 in CI; see the
+[2.0.1 lane evidence](https://github.com/marcocrupi/react-native-keep-awake-plus/blob/main/docs/native-compatibility.md#201-local-lane-evidence).
 
 Separate local RN 0.87.1 checks exercised mixed ownership and actual OS flags on
 an Android emulator and iOS simulator. They do not qualify physical devices, store

@@ -5,24 +5,94 @@ peer range permits npm resolution; it does not certify every React Native
 version in that range. Native builds and host lifecycle tests do not establish
 physical-device runtime or release-store qualification.
 
+## Support policy
+
+The package supports every stable React Native release with the New
+Architecture, from **0.76** onward. RN 0.76 is the first release where the New
+Architecture is stable and enabled by default; from RN 0.82 it is the only
+architecture. Upstream React Native defines the window; this package
+does not cap it.
+
+- The npm peers have **no upper bound** (`react-native >=0.73.0`,
+  `react >=18.2.0`). A new RN release installs without `ERESOLVE`, so consumers
+  do not wait for a package release. Contract tests reject a capped peer.
+- CI builds archive consumers for the two newest releases on every PR and for the
+  window boundaries weekly: the 0.76 floor, the React 19 switch (0.78) and the
+  removal of the Old Architecture (0.82).
+- A weekly [release monitor](#release-monitor) fails when npm `latest` is newer
+  than the newest lane. The maintainer then runs both lanes for that release and
+  adds it to the matrix.
+- Between an RN release and its lane, that release is supported but not yet
+  CI-verified. Regressions are bugs against this package, not an unsupported
+  configuration.
+
+Peer versions 0.73–0.75 and the Old Architecture remain best effort with
+historical evidence only. A future release that removes an API the package uses
+would be handled as a bug fix, not by capping the peer range.
+
 ## Matrix and qualification
 
 `Native compatibility` adds independent checks without altering the JavaScript
 workflow. `scripts/native-ci/matrix.json` is the explicit, exact-version policy.
+Each lane also records the Android SDK packages and macOS runner/Xcode that its
+RN template expects, so old releases build with a contemporary toolchain.
 
-| Selection | Android | iOS | Trigger |
-| --- | --- | --- | --- |
-| Stable | 0.87.1, 0.86.3 | 0.87.1, 0.86.3 | Every PR, main push, manual stable |
-| Regression anchor | 0.85.3 | 0.85.3 | Manual anchor only |
+| Selection | RN (Android and iOS) | Trigger |
+| --- | --- | --- |
+| `stable` | 0.88.0, 0.87.1 | Every PR, main push, manual |
+| `window` | 0.82.1, 0.78.3, 0.76.9 | Manual |
+| `support` | `stable` + `window` | Weekly schedule, manual; run before a release |
+| `anchor` | 0.85.3 (example) | Manual only |
+
+| Lanes | Android SDK / NDK | iOS runner / Xcode |
+| --- | --- | --- |
+| 0.88.0, 0.87.1 | SDK 37.0, build-tools 37.0.0, NDK 27.1 | `macos-26` / 26.6 |
+| 0.85.3, 0.82.1 | SDK 36, build-tools 36.0.0, NDK 27.1 | `macos-26` / 26.6 |
+| 0.78.3 | SDK 35, build-tools 35.0.0, NDK 27.1 | `macos-15` / 16.4 |
+| 0.76.9 | SDK 35, build-tools 35.0.0, NDK 26.1 | `macos-15` / 16.4 |
+
+RN 0.76/0.78 iOS lanes use Xcode 16.4 because those releases' bundled `fmt` does
+not compile with newer Apple clang: local RN 0.76.9 and 0.78.3 consumers failed
+in `fmt/format.cc` with a `consteval` error on Xcode 27.0, before any package
+source was compiled. This upstream RN/Xcode limit also affects apps that do not
+use this package.
 
 All selected native jobs must succeed. The final `Required native compatibility`
 check fails if contracts, Android, or iOS fail, skip, or cancel. Repository branch
 protection is not changed by these files; a maintainer can select that check after
 an actual GitHub run. An anchor run never certifies the stable matrix.
 
+### 2.0.1 local lane evidence
+
+Before the 2.0.1 commit, on 2026-10-16, unchanged `lane.cjs` runs on a local
+macOS host (Xcode 27.0, JDK 17, Node 24.14.1 / npm 11.11.0) produced:
+
+| RN | Android | iOS (Xcode 27.0) |
+| --- | --- | --- |
+| 0.88.0 | PASS: AGP 9.2.1, 44/44 host tests, Debug/Release | PASS: `ReactCodegen/` header, class and SpecJSI linked |
+| 0.87.1 | PASS: AGP 9.2.1, 44/44 host tests, Debug/Release | Not rerun locally (unchanged iOS source; PR CI lane) |
+| 0.82.1 | PASS: AGP 8.12.0, 44/44 host tests, Debug/Release | PASS: class linked |
+| 0.78.3 | PASS: AGP 8.8.0, 44/44 host tests, Debug/Release | FAIL upstream: `fmt` `consteval`; package not reached |
+| 0.76.9 | PASS: AGP 8.6.0, 44/44 host tests, Debug/Release | FAIL upstream: `fmt` `consteval`; package not reached |
+
+Every lane installed its archive with plain `npm install`. The iOS
+Objective-C++ source was byte-identical in all of them. The 0.88.0 lanes and
+Android 0.76.9 ran before the version bump and the explanatory comment in
+`KCKeepAwakePackage.java`. They tested the same code without that comment. The
+other lanes packed the 2.0.1 sources.
+
+As a **diagnostic only**, `fmt/base.h` in the disposable RN 0.76.9 and 0.78.3
+consumers was patched to disable `consteval`, then rebuilt. Both apps compiled
+the package without warnings and linked `ReactNativeKCKeepAwake` and
+`NativeKCKeepAwakeSpecJSI`. This is not lane evidence: the qualifying 0.76/0.78
+iOS lanes are the CI `macos-15` / Xcode 16.4 runs. Logs and `result.json` files
+were kept outside the repository and were not committed.
+
+### Historical 2.0.0 stable run
+
 The 2.0.0 implementation commit
 [`71cb67772c43cdebf265df74f274d1ad9c6132d5`](https://github.com/marcocrupi/react-native-keep-awake-plus/commit/71cb67772c43cdebf265df74f274d1ad9c6132d5)
-passed the stable matrix on 2026-10-15:
+passed the then-stable matrix (RN 0.86.3 and 0.87.1) on 2026-10-15:
 [Native compatibility run 38769209447](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209447)
 completed contracts, both Android lanes, both iOS lanes and the final required
 check. [JavaScript run 38769209285](https://github.com/marcocrupi/react-native-keep-awake-plus/actions/runs/38769209285)
@@ -34,11 +104,13 @@ change archive bytes; these runs identify the implementation commit they tested.
 
 | Category | Scope | Interpretation |
 | --- | --- | --- |
-| npm peers | RN `>=0.73.0 <0.88.0`, React `>=18.2.0 <20.0.0` | Resolver range, not exhaustive qualification |
-| Stable CI | RN 0.86.3 and 0.87.1, Android/iOS New Architecture | Current remote build/host-test evidence above |
+| npm peers | RN `>=0.73.0`, React `>=18.2.0`, no upper bound | Resolver range, not exhaustive qualification |
+| Supported | Every stable RN release from 0.76, New Architecture | [Support policy](#support-policy) |
+| Stable CI | RN 0.88.0 and 0.87.1, Android/iOS New Architecture | Every PR and main push |
+| Support window CI | RN 0.82.1, 0.78.3 and 0.76.9, Android/iOS New Architecture | Weekly and manual `support` runs |
 | Regression anchor | RN 0.85.3, example and manual anchor selection | Not automatically included in stable CI |
 | Historical RN 0.73.11 | Android Old Architecture build/runtime; Android New Architecture Codegen/build; iOS Pods/build; lint and root/Class smoke | Recorded in the 1.5.0 changelog; not a current CI lane or a new 2.0.0 runtime pass |
-| Other peer versions / Old Architecture | Bridge sources retained where RN permits them | Best effort; not individually qualified |
+| RN 0.73–0.75 / Old Architecture | Bridge sources retained where RN permits them | Best effort; not individually qualified |
 
 The example remains RN 0.85.3. Root RN 0.86.0 is tooling, not a stable lane.
 New Architecture is required by the qualified modern RN templates. Retained
@@ -113,8 +185,8 @@ classes for both variants, DEX class descriptors inside both APKs, consumer AGP
 identity, selected New Architecture source set, and Codegen output. These are
 host unit tests and compiled APKs; no emulator/device interaction is asserted.
 
-AGP 9 and its new DSL are different contracts. The qualified RN 0.87.1 / AGP 9
-configuration retains `android.newDsl=false` and `android.builtInKotlin=false`,
+AGP 9 and its new DSL are different contracts. The qualified RN 0.87.1 and 0.88.0
+AGP 9 configurations retain `android.newDsl=false` and `android.builtInKotlin=false`,
 as the official template does. The new DSL is not qualified by this matrix.
 
 The iOS lane starts without Pods, generated outputs or DerivedData, pins
@@ -153,9 +225,10 @@ change the stable matrix.
 
 ## Runners, cost and reproducibility
 
-Node 24.14.1 / npm 11.11.0 and Java 17 are pinned. Android uses `ubuntu-24.04`,
-SDKs 36 and 37.0, build tools 36/37, and NDK 27.1.12297006. iOS uses the standard
-`macos-26` arm64 image and `/Applications/Xcode_26.6.app`; missing Xcode fails
+Node 24.14.1 / npm 11.11.0 and Java 17 are pinned. Android uses `ubuntu-24.04`
+and installs exactly the SDK platform, build tools and NDK listed for its lane in
+`matrix.json`. iOS uses the lane's standard arm64 image (`macos-26` or
+`macos-15`) and `/Applications/Xcode_<lane xcode>.app`; missing Xcode fails
 immediately. Runner OS, SDKs, Xcode and actual versions are logged. Provisioning
 profiles, device signing, larger runners and paid runner labels are unnecessary.
 
@@ -171,15 +244,32 @@ not frozen across time: retain the uploaded lock to reproduce a particular run.
 Android runs at most two lanes concurrently, iOS one per workflow run, with
 70/60 minute ceilings. PR superseding commits cancel older native runs. There is
 one Android invocation for tests and both build variants rather than independent
-heavy duplicate builds. iOS compiles Debug only; adding 0.86.3 gives a second
-stable consumer at bounded cost. Anchor builds are opt-in. Artifacts expire in
-7 days. Existing JS checks continue independently.
+heavy duplicate builds. iOS compiles Debug only. Pull requests run the two
+`stable` lanes; the three older `window` lanes run weekly or on demand, so the
+whole support window is rebuilt at least once a week without slowing every PR.
+Anchor builds are opt-in. Artifacts expire in 7 days. Existing JS checks
+continue independently.
 
-## Release monitoring deferred
+## Release monitor
 
-Automatic React Native release monitoring is deferred. This integration includes
-no scheduled discovery or notification workflow. The exact matrix is maintained
-manually; adding a version requires its own native qualification and review.
+The weekly scheduled run (and every manual run) starts
+`scripts/native-ci/release-monitor.cjs`. It reads the `react-native` npm
+dist-tags and fails when `latest` is newer than the newest stable lane
+(`stable[0]`), logging `next` for information. A failed scheduled run is the
+notification. The monitor is not part of `Required native compatibility`, so an
+upstream release never fails a pull request.
+
+The monitor never edits the matrix. To add a release:
+
+1. Run `lane.cjs android` and `lane.cjs ios` for the exact version locally or in a
+   branch, using the SDK and Xcode its template expects.
+2. Add it to `stable` and `lanes` in `matrix.json`, keeping the two newest
+   releases in `stable`. Move a superseded boundary release to `window` only
+   if it marks a new upstream transition.
+3. Update the contract expectations and the compatibility tables, then require a
+   green `stable` run.
+
+If a release breaks the package, fix the package. Do not cap the peer range.
 
 ## Local reproduction
 
@@ -189,19 +279,22 @@ checkout. Native jobs are reproducible independently:
 
 ```sh
 node --test scripts/native-ci/contracts.test.cjs
-node scripts/native-ci/lane.cjs android 0.87.1 /tmp/keep-awake-android-0871
-node scripts/native-ci/lane.cjs ios 0.87.1 /tmp/keep-awake-ios-0871
-node scripts/native-ci/lane.cjs android 0.86.3 /tmp/keep-awake-android-0863
-node scripts/native-ci/lane.cjs ios 0.86.3 /tmp/keep-awake-ios-0863
+node scripts/native-ci/release-monitor.cjs
+node scripts/native-ci/lane.cjs android 0.88.0 /tmp/keep-awake-android-0880
+node scripts/native-ci/lane.cjs ios 0.88.0 /tmp/keep-awake-ios-0880
+node scripts/native-ci/lane.cjs android 0.76.9 /tmp/keep-awake-android-0769
 node scripts/native-ci/lane.cjs android 0.85.3 /tmp/keep-awake-anchor-android
-node scripts/native-ci/lane.cjs ios 0.85.3 /tmp/keep-awake-anchor-ios
 ```
+
+Every version in `stable`, `window` and `anchor` is accepted. Older iOS lanes
+need the Xcode named in `matrix.json` (`DEVELOPER_DIR`); for example, RN 0.76.9
+and 0.78.3 do not compile with Xcode 27.
 
 Run the optional real npm/Codegen/javac negative witnesses only
 against a completed disposable Android lane (never the checkout/example):
 
 ```sh
-node scripts/native-ci/negative-witness.cjs /tmp/keep-awake-android-0871 /tmp/keep-awake-negative
+node scripts/native-ci/negative-witness.cjs /tmp/keep-awake-android-0880 /tmp/keep-awake-negative
 ```
 
 The witness restores mutated archive sources in `finally` and verifies byte
